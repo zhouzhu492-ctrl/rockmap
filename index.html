@@ -1,1985 +1,642 @@
-```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>中国地下摇滚声音地图 · 500+全量乐队联网协同版</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome 图标库 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- ECharts 4 与中国官方完整高精度矢量地图库 (严格包含台湾省、香港、澳门、海南岛及南海诸岛九段线) -->
-  <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@600;900&display=swap');
-
-    :root {
-      --paper-bg: #ece5d3;
-      --paper-dark: #ded2b7;
-      --ink-black: #141311;
-      --ink-red: #c5221f;
-    }
-
-    body {
-      background-color: var(--paper-bg);
-      color: var(--ink-black);
-      font-family: 'Courier Prime', 'Noto Serif SC', serif;
-      overflow: hidden;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    /* 粗糙地下报刊油墨半色调网点 */
-    .zine-bg-grain {
-      background-image: 
-        radial-gradient(#141311 0.75px, transparent 0.75px),
-        radial-gradient(#c5221f 0.5px, #ece5d3 0.5px);
-      background-size: 24px 24px, 12px 12px;
-      background-position: 0 0, 6px 6px;
-      opacity: 0.12;
-      pointer-events: none;
-    }
-
-    .paper-shadow {
-      box-shadow: inset 0 0 100px rgba(40, 30, 20, 0.28);
-      pointer-events: none;
-    }
-
-    .misprint-title {
-      text-shadow: -1.5px -1.5px 0 rgba(197, 34, 31, 0.75), 1.5px 1.5px 0 rgba(20, 20, 20, 0.95);
-    }
-    
-    .tape-tag {
-      background: rgba(235, 215, 140, 0.95);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-      border-left: 2px dashed rgba(160, 130, 60, 0.7);
-      border-right: 2px dashed rgba(160, 130, 60, 0.7);
-    }
-
-    .ink-stamp {
-      border: 3px solid var(--ink-red);
-      color: var(--ink-red);
-      transform: rotate(-1.5deg);
-      display: inline-block;
-      text-transform: uppercase;
-      font-weight: 900;
-    }
-
-    /* 搜索与推荐命中平滑高亮闪烁 */
-    .search-hit-flash {
-      animation: hit-flash-border 2.8s ease-out;
-    }
-
-    @keyframes hit-flash-border {
-      0% { border-color: #c5221f; background-color: #ffe4e4; transform: scale(1.02); box-shadow: 0 0 20px rgba(197, 34, 31, 0.85); }
-      30% { border-color: #c5221f; background-color: #fde8e8; transform: scale(1.02); }
-      60% { border-color: #c5221f; }
-      100% { border-color: #000; background-color: #faf6eb; transform: scale(1); }
-    }
-
-    /* 复古便签黄历折角与齿孔 */
-    .calendar-paper {
-      background: #faf4e4;
-      border: 3px solid #141311;
-      box-shadow: -8px 8px 0px #141311;
-      background-image: linear-gradient(rgba(20,19,17,0.03) 1px, transparent 1px);
-      background-size: 100% 20px;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #dfd5be;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #141311;
-      border: 1px solid #ece5d3;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中国地下摇滚声音地图 · 文化年鉴与共创基建版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #e8e0cc;
+            --paper-dark: #d8ceb5;
+            --ink: #141311;
+            --crimson: #c82318;
+            --amber: #d97706;
+            --teal: #0f766e;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background-color: var(--paper); color: var(--ink);
+            font-family: 'Space Mono', 'Noto Serif SC', monospace, serif;
+            user-select: none;
+        }
+        .halftone-bg {
+            position: fixed; inset: 0; pointer-events: none; z-index: 5;
+            background-image: radial-gradient(rgba(20, 19, 17, 0.08) 1px, transparent 0);
+            background-size: 5px 5px;
+        }
+        .zine-box {
+            background: var(--paper);
+            border: 2.5px solid var(--ink);
+            box-shadow: 4px 4px 0px var(--ink);
+        }
+        .zine-btn {
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            box-shadow: 2px 2px 0px var(--ink);
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+            cursor: pointer;
+        }
+        .zine-btn:hover { background: #dfd5bc; }
+        .zine-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px var(--ink);
+        }
+        .zine-btn-red {
+            background: var(--crimson); color: #fff;
+            border: 2px solid var(--ink);
+            box-shadow: 2px 2px 0px var(--ink);
+        }
+        .zine-btn-red:hover { background: #a81c12; }
+        .band-card {
+            background: #f3eee1;
+            border: 2px solid var(--ink);
+            box-shadow: 3px 3px 0px var(--ink);
+            content-visibility: auto;
+            contain-intrinsic-size: 210px;
+        }
+        @keyframes pulseHighlight {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(200, 35, 24, 0.8), 3px 3px 0px var(--ink); border-color: var(--crimson); }
+            50% { box-shadow: 0 0 0 8px rgba(200, 35, 24, 0), 3px 3px 0px var(--crimson); background-color: #fff3f0; }
+        }
+        .highlight-focus {
+            animation: pulseHighlight 1s ease-in-out 3;
+            border: 3px solid var(--crimson) !important;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--paper-dark); border-left: 1px solid var(--ink); }
+        ::-webkit-scrollbar-thumb { background: var(--ink); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--crimson); }
+    </style>
 </head>
-<body class="w-screen h-screen relative select-none overflow-hidden flex flex-col justify-between">
+<body class="relative w-full h-full flex flex-col">
 
-  <!-- 报刊底噪网点与暗角 -->
-  <div class="absolute inset-0 z-20 zine-bg-grain"></div>
-  <div class="absolute inset-0 z-20 paper-shadow"></div>
+    <div class="halftone-bg"></div>
 
-  <!-- ==================== 顶部主控制台 ==================== -->
-  <header class="relative z-30 px-3 sm:px-6 py-2.5 border-b-4 border-black bg-[#e9e1cc] flex flex-wrap items-center justify-between gap-3 shadow-md">
-    
-    <!-- 站点主标题 -->
-    <div class="flex items-center gap-2 sm:gap-3">
-      <div class="bg-black text-[#f2edd9] px-2.5 py-1 font-black text-sm sm:text-lg tracking-tighter misprint-title flex items-center gap-2">
-        <i class="fa-solid fa-compact-disc text-red-600 animate-spin" style="animation-duration: 9s;"></i>
-        <span>中国地下摇滚声音地图</span>
-      </div>
-      <span class="tape-tag px-2 py-0.5 text-[10px] font-mono font-bold hidden md:inline text-black">500+ 全量乐队 · 联网协同版</span>
-      <span id="cloud-sync-status" class="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-neutral-800 text-neutral-300 border border-black flex items-center gap-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span> 联网接入中
-      </span>
+    <!-- 顶部主控台 Header -->
+    <header class="relative z-40 w-full bg-[#e8e0cc]/95 border-b-[3px] border-[#141311] px-2.5 py-2 shadow-md">
+        <div class="max-w-[1920px] mx-auto flex flex-col gap-2">
+            <!-- 第一行：品牌 + 搜索 + 随机漫游 + 每日黄历 + 录入 -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <div class="bg-[#c82318] text-[#e8e0cc] font-black px-2 py-0.5 text-xs border-2 border-[#141311] tracking-widest">ARCHIVE 650+</div>
+                    <h1 class="text-base sm:text-xl font-black tracking-tighter text-[#141311] uppercase">中国地下摇滚声音地图</h1>
+                </div>
+
+                <!-- 搜索栏（回车/点击按钮触发，z-index 99999） -->
+                <div class="relative flex-1 max-w-md min-w-[210px]">
+                    <div class="flex w-full">
+                        <input id="searchInput" type="text" placeholder="搜乐队 / 城市 / 代表作 / 流派..." 
+                            class="w-full px-2.5 py-1 text-xs sm:text-sm bg-[#f7f4eb] border-2 border-[#141311] focus:outline-none font-bold text-[#141311]" />
+                        <button id="searchBtn" class="px-3 py-1 bg-[#141311] text-[#e8e0cc] text-xs font-black border-y-2 border-r-2 border-[#141311] hover:bg-[#c82318] transition-colors shrink-0">
+                            搜索
+                        </button>
+                    </div>
+                    <div id="searchDropdown" style="z-index: 99999;" class="hidden fixed sm:absolute left-2 right-2 sm:left-0 sm:right-0 mt-1 max-h-[65vh] overflow-y-auto bg-[#f7f4eb] border-[3px] border-[#141311] shadow-[6px_6px_0px_#141311]"></div>
+                </div>
+
+                <!-- 核心快捷动作组 -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button id="randomBandBtn" class="zine-btn bg-[#d97706] text-white px-2.5 py-1 text-xs font-black flex items-center gap-1" title="随机漫游全国任意一支乐队">
+                        <span>🎲</span><span>随机发现</span>
+                    </button>
+                    <button id="dailyRecBtn" class="zine-btn px-2.5 py-1 text-xs font-black flex items-center gap-1">
+                        <span>📅</span><span class="hidden sm:inline">今日声波</span>
+                    </button>
+                    <button id="openAddBandBtn" class="zine-btn zine-btn-red px-2.5 py-1 text-xs font-black flex items-center gap-1">
+                        <span>＋</span><span>登记乐队</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 第二行：文化基建功能矩阵工具栏 -->
+            <div class="flex items-center justify-between gap-1.5 overflow-x-auto pb-0.5 pt-1 border-t border-[#141311]/20 text-xs">
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <!-- 场景地标图层开关 -->
+                    <button id="toggleLandmarksBtn" class="zine-btn px-2 py-0.5 font-black flex items-center gap-1 bg-[#141311] text-[#e8e0cc]">
+                        <span>🏛️</span><span>历史地标/Livehouse: 开</span>
+                    </button>
+                    <!-- 朝圣路线 -->
+                    <button id="openRoutesBtn" class="zine-btn px-2 py-0.5 font-black flex items-center gap-1">
+                        <span>🚩</span><span>朝圣打卡路线</span>
+                    </button>
+                    <!-- 排行榜与冷门场景 -->
+                    <button id="openRankBtn" class="zine-btn px-2 py-0.5 font-black flex items-center gap-1">
+                        <span>📊</span><span>城市榜 & 冷门推荐</span>
+                    </button>
+                    <!-- 收藏夹 -->
+                    <button id="openFavBtn" class="zine-btn px-2 py-0.5 font-black flex items-center gap-1">
+                        <span>⭐</span><span>收藏/想去现场 (<span id="favCountBadge">0</span>)</span>
+                    </button>
+                    <!-- 清除足迹/路线连线 -->
+                    <button id="clearLinesBtn" class="hidden zine-btn bg-[#c82318] text-white px-2 py-0.5 font-black items-center gap-1">
+                        <span>✕</span><span>清除地图轨迹线</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <!-- 审核队列 -->
+                    <button id="openModBtn" class="zine-btn px-2 py-0.5 font-black flex items-center gap-1">
+                        <span>🛡️</span><span>审核与认领 (<span id="modCountBadge">0</span>)</span>
+                    </button>
+                    <!-- 贡献者主页与徽章 -->
+                    <button id="openProfileBtn" class="zine-btn bg-[#e0d4b8] px-2 py-0.5 font-black flex items-center gap-1">
+                        <span>🏅</span><span id="navUserBadge">地下档案员</span><span>(<span id="navUserPts">120</span>分)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体地图与浮动层 -->
+    <main class="relative flex-1 w-full h-full overflow-hidden">
+        <!-- ECharts 高性能矢量画布 -->
+        <div id="chinaMapContainer" class="w-full h-full"></div>
+
+        <!-- 地图加载状态提示 -->
+        <div id="mapLoadingOverlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#e8e0cc]/90">
+            <div class="zine-box p-6 max-w-sm text-center">
+                <div class="text-lg font-black mb-1">正在展开中国地下声学版图...</div>
+                <div class="text-xs font-bold text-[#555] mb-3">加载全国 34 省级行政区、70+ 摇滚重镇、650+ 乐队与历史地标</div>
+                <div class="w-full h-3 border-2 border-[#141311] bg-[#f7f4eb] overflow-hidden">
+                    <div id="loadingBar" class="h-full bg-[#c82318] w-2/3 transition-all duration-300"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 当前激活的路线或乐队足迹横幅 -->
+        <div id="activeTrackBanner" class="hidden absolute top-3 left-3 z-20 zine-box bg-[#141311] text-[#e8e0cc] px-3 py-2 max-w-xs sm:max-w-md">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <div id="trackBannerTag" class="text-[10px] font-black text-[#f59e0b] uppercase tracking-widest">PILGRIMAGE ROUTE</div>
+                    <div id="trackBannerTitle" class="text-xs sm:text-sm font-black">路线名称</div>
+                </div>
+                <button onclick="clearActiveLines()" class="px-2 py-0.5 bg-[#c82318] text-white text-xs font-black border border-white">关闭轨迹</button>
+            </div>
+            <div id="trackBannerSteps" class="mt-1.5 text-[11px] text-[#d8ceb5] space-y-1 max-h-28 overflow-y-auto"></div>
+        </div>
+
+        <!-- 左下角图例与数据监控面板 -->
+        <div class="absolute bottom-3 left-3 z-20 pointer-events-none hidden sm:block">
+            <div class="zine-box p-2.5 bg-[#e8e0cc]/95 pointer-events-auto text-xs space-y-1">
+                <div class="font-black border-b border-[#141311] pb-1 flex items-center justify-between gap-4">
+                    <span>CHINA ROCK ZINE ATLAS</span>
+                    <span class="bg-[#141311] text-[#e8e0cc] px-1 text-[10px]">60FPS</span>
+                </div>
+                <div class="flex items-center gap-3 pt-0.5">
+                    <div>城市据点: <strong id="statCities" class="text-[#c82318]">0</strong></div>
+                    <div>乐队大典: <strong id="statBands" class="text-[#c82318]">0</strong></div>
+                    <div>历史地标: <strong id="statLandmarks" class="text-[#0f766e]">0</strong></div>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] text-[#444] pt-0.5">
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-[#c82318] border border-black"></span>摇滚重镇</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 rounded-full bg-[#141311] border border-white"></span>城市据点</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2.5 h-2.5 bg-[#d97706] border border-black"></span>历史地标/Livehouse</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 城市/地标档案抽屉 (右侧滑出/移动端底部滑出) -->
+        <aside id="cityDrawer" class="fixed sm:absolute bottom-0 right-0 sm:top-0 z-30 w-full sm:w-[480px] md:w-[540px] h-[82vh] sm:h-full bg-[#e8e0cc] border-t-[3px] sm:border-t-0 sm:border-l-[3px] border-[#141311] shadow-[-6px_0_0_rgba(20,19,17,0.9)] transform translate-y-full sm:translate-y-0 sm:translate-x-full transition-transform duration-200 flex flex-col">
+            <!-- 抽屉头 -->
+            <div class="p-3 bg-[#141311] text-[#e8e0cc] flex items-center justify-between shrink-0">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="drawerProvTag" class="bg-[#c82318] text-white text-[10px] font-black px-1.5 py-0.5 uppercase">PROVINCE</span>
+                        <h2 id="drawerCityName" class="text-lg sm:text-xl font-black tracking-tight">城市名称</h2>
+                        <span id="drawerBandCount" class="text-xs font-bold text-[#d8ceb5]">(0 支)</span>
+                    </div>
+                    <p id="drawerCityDesc" class="text-[11px] text-[#bbb] mt-0.5 line-clamp-1">城市摇滚场景历史注脚</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button id="drawerAddHereBtn" class="px-2 py-1 bg-[#c82318] text-white text-xs font-black border border-[#e8e0cc] hover:bg-red-700">
+                        ＋在此添乐队
+                    </button>
+                    <button id="closeDrawerBtn" class="w-7 h-7 bg-[#e8e0cc] text-[#141311] font-black text-base flex items-center justify-center border border-[#141311]">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <!-- 城市内过滤器与该城地标切换 -->
+            <div class="p-2 bg-[#d8ceb5] border-b-2 border-[#141311] flex flex-col gap-1.5 shrink-0">
+                <div class="flex items-center gap-1.5">
+                    <input id="drawerFilterInput" type="text" placeholder="在本城筛选乐队 / 风格 / 年代..." 
+                        class="flex-1 px-2 py-1 text-xs bg-[#f7f4eb] border-2 border-[#141311] font-bold focus:outline-none" />
+                    <select id="drawerGenreSelect" class="px-2 py-1 text-xs bg-[#f7f4eb] border-2 border-[#141311] font-black">
+                        <option value="ALL">全部流派</option>
+                        <option value="朋克">朋克 / 硬核</option>
+                        <option value="金属">金属 / 重型</option>
+                        <option value="后朋克">后朋克 / 新浪潮</option>
+                        <option value="后摇">后摇 / 器乐</option>
+                        <option value="独立">独立 / 另类</option>
+                        <option value="民谣">根源 / 民谣摇滚</option>
+                    </select>
+                </div>
+                <!-- 本城关联地标快捷栏 -->
+                <div id="drawerCityLandmarks" class="hidden flex-wrap items-center gap-1 pt-0.5 text-[11px]"></div>
+            </div>
+
+            <!-- 虚拟分批渲染列表容器 -->
+            <div id="drawerBandList" class="flex-1 overflow-y-auto p-3 space-y-3"></div>
+        </aside>
+    </main>
+
+    <!-- ================= 弹窗矩阵 ================= -->
+
+    <!-- 1. 通用多功能模态框 (用于展示地标详情、朝圣路线、排行榜、收藏夹、审核队列、版本历史、认领、个人主页) -->
+    <div id="universalModal" class="hidden fixed inset-0 z-50 bg-black/65 flex items-center justify-center p-2 sm:p-4">
+        <div class="zine-box w-full max-w-2xl max-h-[88vh] flex flex-col bg-[#e8e0cc] overflow-hidden">
+            <div class="p-3 bg-[#141311] text-[#e8e0cc] flex items-center justify-between shrink-0">
+                <h3 id="uniModalTitle" class="text-base sm:text-lg font-black tracking-tight">模态框标题</h3>
+                <button onclick="closeUniModal()" class="w-7 h-7 bg-[#c82318] text-white font-black text-sm border border-white">✕</button>
+            </div>
+            <div id="uniModalBody" class="p-3.5 overflow-y-auto space-y-3 text-xs sm:text-sm flex-1"></div>
+        </div>
     </div>
 
-    <!-- 全局搜索系统：z-[99999] 最高层级，绝无遮挡 -->
-    <div class="flex items-center gap-1.5 flex-1 max-w-xl mx-1 relative z-50">
-      
-      <!-- 搜索输入框 -->
-      <div class="relative w-full">
-        <input type="text" id="city-search" 
-               onkeydown="window.handleSearchKeyDown(event)" 
-               placeholder="检索500+乐队/代表作/城市 (如: Lur, 录耳, 万青, 刺客, 舌头, 新乡)..." 
-               class="w-full bg-[#fbf7eb] border-2 border-black px-3 py-1.5 text-xs font-mono font-bold focus:outline-none focus:bg-white pr-8 shadow-inner">
-        <button onclick="window.clearSearchInput()" id="clear-search-btn" class="hidden absolute right-2.5 top-2 text-neutral-400 hover:text-black text-xs font-bold">✕</button>
-      </div>
-
-      <!-- 搜索按钮 -->
-      <button onclick="window.executeSearch()" class="px-3.5 py-1.5 bg-black text-white font-black text-xs border-2 border-black hover:bg-red-700 transition flex items-center gap-1 shrink-0 shadow-[-2px_2px_0px_#000] active:scale-95">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <span>搜索</span>
-      </button>
-
-      <!-- 365天黄历推荐触发按钮（默认收起，独立唤起） -->
-      <button onclick="window.openCalendarModal()" class="px-3 py-1.5 bg-[#faf4e4] hover:bg-yellow-200 border-2 border-black font-black text-xs flex items-center gap-1.5 shrink-0 shadow-[-2px_2px_0px_#000] active:scale-95 transition">
-        <i class="fa-regular fa-calendar-days text-red-700 font-bold"></i>
-        <span class="text-black font-black hidden sm:inline">今日声波推荐</span>
-        <span class="bg-red-700 text-white text-[10px] px-1 py-0.2 rounded font-mono font-bold">3首</span>
-      </button>
-
-      <!-- 搜索结果弹层：绝对最高层级（z-index: 99999），贴合在输入框下方，绝不遮挡 -->
-      <div id="search-results-modal" style="z-index: 99999;" class="hidden absolute left-0 right-0 top-11 bg-[#faf6eb] border-4 border-black shadow-[10px_10px_0px_#000] max-h-96 overflow-y-auto p-2.5 text-xs">
-        <div class="flex items-center justify-between border-b-2 border-black pb-1.5 mb-2 bg-[#ded3ba] px-2 py-1">
-          <span class="font-black text-red-900 flex items-center gap-1 text-xs">
-            <i class="fa-solid fa-list-check"></i> 检索结果 (<span id="search-results-count">0</span>)
-          </span>
-          <button onclick="window.closeSearchResults()" class="text-black font-black hover:text-red-700 text-xs px-1">✕ 关闭</button>
+    <!-- 2. 登记/编辑乐队弹窗 -->
+    <div id="addBandModal" class="hidden fixed inset-0 z-50 bg-black/65 flex items-center justify-center p-3">
+        <div class="zine-box w-full max-w-md bg-[#e8e0cc] overflow-hidden">
+            <div class="p-3 bg-[#141311] text-[#e8e0cc] flex items-center justify-between">
+                <h3 id="bandFormTitle" class="text-base font-black">＋ 盖印归档地下乐队</h3>
+                <button onclick="closeBandModal()" class="w-7 h-7 bg-[#c82318] text-white font-black">✕</button>
+            </div>
+            <form id="bandForm" class="p-4 space-y-3 text-xs">
+                <input type="hidden" id="editBandId" value="" />
+                <div>
+                    <label class="block font-black mb-1">乐队名称 *</label>
+                    <input id="formBandName" required type="text" placeholder="如：Lur: / 万能青年旅店" class="w-full px-2.5 py-1.5 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-black mb-1">所属城市据点 *</label>
+                        <select id="formBandCity" class="w-full px-2 py-1.5 bg-[#f7f4eb] border-2 border-[#141311] font-bold"></select>
+                    </div>
+                    <div>
+                        <label class="block font-black mb-1">成立年份 *</label>
+                        <input id="formBandYear" type="text" placeholder="如：1997年" value="2010年代" class="w-full px-2.5 py-1.5 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-black mb-1">音乐流派 *</label>
+                        <input id="formBandGenre" required type="text" placeholder="如：后朋克 / 硬核朋克" class="w-full px-2.5 py-1.5 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                    <div>
+                        <label class="block font-black mb-1">代表作 *</label>
+                        <input id="formBandWorks" required type="text" placeholder="如：《杀死那个石家庄人》" class="w-full px-2.5 py-1.5 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-black mb-1">声音文献简评 / 重要足迹</label>
+                    <textarea id="formBandDesc" rows="2" placeholder="记录乐队风格特征、排练地或重要首演现场..." class="w-full px-2.5 py-1.5 bg-[#f7f4eb] border-2 border-[#141311] font-bold"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                        <label class="block font-black mb-1">首演/常驻排练城市 (足迹连线)</label>
+                        <input id="formBandFootprint" type="text" placeholder="如：北京,武汉,上海" class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                    <div>
+                        <label class="block font-black mb-1">编辑者署名</label>
+                        <input id="formEditorName" type="text" placeholder="你的地下花名" class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeBandModal()" class="zine-btn px-4 py-1.5 font-black">取消</button>
+                    <button type="submit" class="zine-btn zine-btn-red px-5 py-1.5 font-black">盖章归档 (+15积分)</button>
+                </div>
+            </form>
         </div>
-        <div id="search-results-list" class="space-y-1.5">
-          <!-- 动态装配检索结果 -->
-        </div>
-      </div>
     </div>
 
-    <!-- 流派过滤与添加乐队 -->
-    <div class="flex items-center gap-1.5">
-      <div class="hidden lg:flex items-center gap-1 text-xs font-mono font-bold">
-        <button onclick="window.setGenreFilter('ALL')" id="filter-ALL" class="genre-btn px-2 py-1 border-2 border-black bg-black text-white shadow-[-1px_1px_0px_#000]">全部</button>
-        <button onclick="window.setGenreFilter('PUNK')" id="filter-PUNK" class="genre-btn px-2 py-1 border-2 border-black bg-[#faf6eb] hover:bg-red-100 shadow-[-1px_1px_0px_#000]">朋克</button>
-        <button onclick="window.setGenreFilter('METAL')" id="filter-METAL" class="genre-btn px-2 py-1 border-2 border-black bg-[#faf6eb] hover:bg-red-100 shadow-[-1px_1px_0px_#000]">金属</button>
-        <button onclick="window.setGenreFilter('POSTROCK')" id="filter-POSTROCK" class="genre-btn px-2 py-1 border-2 border-black bg-[#faf6eb] hover:bg-red-100 shadow-[-1px_1px_0px_#000]">后摇/独立</button>
-      </div>
-
-      <button onclick="window.openSubmitModal()" class="tape-tag font-black text-xs px-3 py-1.5 border-2 border-black text-black hover:bg-yellow-300 transition flex items-center gap-1 active:scale-95 shadow-[-2px_2px_0px_#000]">
-        <i class="fa-solid fa-stamp text-red-700"></i>
-        <span>补充地下乐队</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- ==================== 核心主视口：ECharts 矢量中国地图 ==================== -->
-  <main class="relative flex-1 w-full h-full overflow-hidden bg-[#e5dcbf]">
-    <div id="echarts-china-map" class="w-full h-full"></div>
-
-    <!-- 提示气泡 (Toast) -->
-    <div id="toast-message" class="hidden absolute top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#141311] text-[#faf6eb] border-2 border-red-600 px-4 py-2 font-mono text-xs font-bold shadow-[4px_4px_0px_#ba1a1a]">
-      <span id="toast-text">提示内容</span>
-    </div>
-
-    <!-- 左下角文献说明卡 (大屏) -->
-    <div class="absolute bottom-5 left-4 z-10 pointer-events-none hidden lg:block">
-      <div class="bg-[#faf6eb] border-2 border-black p-3 text-xs shadow-[-3px_3px_0px_#000] max-w-sm rotate-[-1deg]">
-        <p class="font-black text-red-800 flex items-center gap-1.5 text-sm">
-          <i class="fa-solid fa-book-journal-whills"></i> 50+ 城市全覆盖 · 500+独一乐队大典
-        </p>
-        <p class="text-neutral-800 mt-1.5 leading-relaxed font-serif text-[11px]">
-          • 彻底剔除重名项，涵盖 500+ 支真实独立/地下/朋克/金属乐队文献全量大典。<br>
-          • 覆盖石家庄、新乡、武汉、西安、大连、海丰、钦州、高雄、台北等全国 50+ 个声学据点。<br>
-          • 支持联网多端同步：添加新乐队与现场照片返图将实时广播给所有在线乐迷。
-        </p>
-      </div>
-    </div>
-
-    <!-- 右下角火漆统计戳 -->
-    <div class="absolute bottom-5 right-4 z-10 pointer-events-none">
-      <div class="ink-stamp px-3 py-1.5 text-xs bg-[#faf6eb] shadow-md border-2 border-red-700">
-        已收录据点: <span id="stat-city-count" class="font-bold underline text-sm text-black">--</span> 处 · 
-        独一乐队: <span id="stat-band-count" class="font-bold underline text-sm text-black">--</span> 支
-      </div>
-    </div>
-  </main>
-
-  <!-- ==================== 365天每日摇滚声波黄历推荐弹窗（默认折叠隐藏，不遮挡地图） ==================== -->
-  <div id="calendar-recommend-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="relative w-full max-w-md calendar-paper p-4 sm:p-5 shadow-[10px_10px_0px_#000] border-4 border-black" onclick="event.stopPropagation()">
-      
-      <!-- 黄历头部 -->
-      <div class="flex items-start justify-between border-b-2 border-black pb-2.5 mb-3">
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="bg-red-700 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 uppercase tracking-wider">SONIC CALENDAR</span>
-            <span class="text-xs font-mono font-black text-neutral-800" id="cal-today-text">--</span>
-          </div>
-          <h3 class="font-black text-lg text-black mt-1 tracking-tight flex items-center gap-1.5">
-            <i class="fa-solid fa-bell-concierge text-red-700"></i>
-            <span id="cal-occasion-title">今日摇滚声波黄历</span>
-          </h3>
+    <!-- 3. 规范化图片上传与留言弹窗 (含来源、拍摄者、年份、授权协议) -->
+    <div id="uploadMediaModal" class="hidden fixed inset-0 z-50 bg-black/65 flex items-center justify-center p-3">
+        <div class="zine-box w-full max-w-md bg-[#e8e0cc] overflow-hidden">
+            <div class="p-3 bg-[#141311] text-[#e8e0cc] flex items-center justify-between">
+                <h3 id="mediaModalBandTitle" class="text-sm sm:text-base font-black">📸 投递现场影像与留言</h3>
+                <button onclick="closeMediaModal()" class="w-7 h-7 bg-[#c82318] text-white font-black">✕</button>
+            </div>
+            <form id="mediaForm" class="p-4 space-y-2.5 text-xs">
+                <input type="hidden" id="mediaBandId" />
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-black mb-1">你的花名 / 拍摄者署名 *</label>
+                        <input id="mediaAuthor" required type="text" placeholder="如：树村老炮" class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                    <div>
+                        <label class="block font-black mb-1">拍摄/现场年份 *</label>
+                        <input id="mediaYear" required type="text" value="2024" placeholder="如：2005年" class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold" />
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-black mb-1">图片来源说明 *</label>
+                        <select id="mediaSource" class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold">
+                            <option value="本人现场实拍">本人现场实拍</option>
+                            <option value="实体门票/卡带扫描">实体门票/卡带扫描</option>
+                            <option value="主办方/乐队公开海报">主办方/乐队公开海报</option>
+                            <option value="历史文献归档">历史文献归档</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-black mb-1">版权授权协议 *</label>
+                        <select id="mediaLicense" class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold">
+                            <option value="CC BY-NC-SA 4.0 (署名-非商用)">CC BY-NC-SA 4.0</option>
+                            <option value="CC0 公共领域贡献">CC0 公共领域</option>
+                            <option value="仅限本档案站内展示">仅限站内档案展示</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-black mb-1">现场回忆 / 考据留言 *</label>
+                    <textarea id="mediaText" required rows="2" placeholder="写下那场演出的细节、票根故事或文献考据..." class="w-full px-2 py-1 bg-[#f7f4eb] border-2 border-[#141311] font-bold"></textarea>
+                </div>
+                <div>
+                    <label class="block font-black mb-1">上传图片 (可选，自动压缩防爆存)</label>
+                    <input id="mediaFileInput" type="file" accept="image/*" class="w-full text-xs file:mr-2 file:py-1 file:px-2 file:border-2 file:border-[#141311] file:font-black file:bg-[#d8ceb5]" />
+                </div>
+                <div class="text-[10px] text-[#555] bg-[#d8ceb5] p-1.5 border border-[#141311]">
+                    提示：采用「先发后审 + 社区举报下架」机制。上传即获 +10 贡献积分。
+                </div>
+                <div class="pt-1 flex justify-end gap-2">
+                    <button type="button" onclick="closeMediaModal()" class="zine-btn px-3 py-1 font-black">取消</button>
+                    <button type="submit" class="zine-btn zine-btn-red px-4 py-1 font-black">发布并签署协议</button>
+                </div>
+            </form>
         </div>
-        <button onclick="window.closeCalendarModal()" class="w-8 h-8 border-2 border-black bg-black text-white hover:bg-red-700 transition flex items-center justify-center font-black text-base" title="关闭黄历">
-          ✕
-        </button>
-      </div>
-
-      <!-- 黄历内页内容 -->
-      <div class="space-y-3">
-        <div class="bg-[#ede3cb] border-l-4 border-black p-2.5 text-xs leading-relaxed font-serif text-neutral-800" id="cal-occasion-desc">
-          计算今日声学时节...
-        </div>
-
-        <div class="flex items-center justify-between text-xs font-mono font-bold text-red-900 border-b border-dashed border-neutral-400 pb-1">
-          <span>★ 每日精选声波三部曲 (刚好 3 首)</span>
-          <span class="text-[10px] text-neutral-600">点击直达定位</span>
-        </div>
-
-        <!-- 3 首推荐曲目条目 -->
-        <div id="cal-songs-container" class="space-y-2">
-          <!-- 动态装配 3 首歌曲卡片 -->
-        </div>
-
-        <div class="pt-2 text-[10px] font-mono text-neutral-500 text-right flex items-center justify-between border-t border-black">
-          <span>365天每日零点自动更新</span>
-          <span class="text-black font-bold">每日专属策划 · 点击一键直达</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 底部状态栏 -->
-  <footer class="relative z-30 bg-[#141311] text-[#ded8c4] py-1.5 px-4 text-xs font-mono flex items-center justify-between border-t-2 border-black">
-    <div class="flex items-center gap-2">
-      <span class="text-green-500 font-bold flex items-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span> 500+全量独一收录 · 50+城市全域覆盖
-      </span>
-      <span class="hidden sm:inline">“地下小样不灭，草根之声永存”</span>
-    </div>
-    <div class="flex items-center gap-3 text-neutral-400">
-      <span>PC端右侧抽屉 / 移动端底部滑出</span>
-    </div>
-  </footer>
-
-  <!-- ==================== 双端适配抽屉：城市地下乐队文献详案 ==================== -->
-  <div id="band-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[540px] md:w-[640px] max-h-[85vh] sm:max-h-full bottom-0 top-auto sm:top-0 bg-[#f4ede0] border-t-4 sm:border-t-0 sm:border-l-4 border-black z-40 transform translate-y-full sm:translate-y-0 sm:translate-x-full transition-transform duration-300 ease-out shadow-[-15px_0_35px_rgba(0,0,0,0.4)] flex flex-col justify-between">
-    
-    <!-- 抽屉头部 -->
-    <div class="p-4 border-b-4 border-black bg-[#e5dcbf] flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="tape-tag px-2.5 py-0.5 text-xs font-black uppercase text-black">REGIONAL ARCHIVE</span>
-        <span class="font-mono text-xs font-bold text-neutral-700" id="drawer-region-tag">声学据点</span>
-      </div>
-      <button onclick="window.closeDrawer()" class="w-8 h-8 border-2 border-black bg-black text-white hover:bg-red-700 transition flex items-center justify-center font-black text-base">
-        ✕
-      </button>
     </div>
 
-    <!-- 抽屉正文 -->
-    <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5" id="drawer-scroll-body">
-      <!-- 城市大标头与地域风骨 -->
-      <div class="border-b-2 border-black pb-3">
-        <div class="flex items-baseline justify-between flex-wrap gap-1">
-          <h2 id="drawer-city-title" class="text-3xl font-black text-black misprint-title tracking-tight">城市</h2>
-          <span id="drawer-city-alias" class="text-xs font-mono font-bold text-red-800">[ 坐标档案 ]</span>
-        </div>
-        <p id="drawer-city-desc" class="mt-2 text-xs sm:text-sm text-neutral-800 font-serif leading-relaxed bg-[#ebdcc2] p-3 border-l-4 border-red-700">
-          城市摇滚气质写照...
-        </p>
-      </div>
-
-      <!-- 乐队文献列表 -->
-      <div>
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="font-black text-sm uppercase text-black flex items-center gap-1.5">
-            <i class="fa-solid fa-folder-open text-red-700"></i>
-            <span>归档乐队 (<span id="drawer-list-count" class="text-red-700 font-mono font-bold">0</span>)</span>
-          </h3>
-          <span class="text-[11px] text-neutral-600 font-mono">流派印记 / 现场返图 / 乐迷留言簿</span>
-        </div>
-
-        <div id="drawer-bands-container" class="space-y-4">
-          <!-- 动态装配每支乐队的卡片与留言板 -->
-        </div>
-      </div>
-    </div>
-
-    <!-- 抽屉底部 -->
-    <div class="p-3.5 border-t-2 border-black bg-[#e5dcbf] flex items-center justify-between">
-      <button onclick="window.openSubmitModalForCurrentCity()" class="text-xs font-bold text-red-800 hover:text-black transition flex items-center gap-1.5 underline decoration-2">
-        <i class="fa-solid fa-pen-to-square"></i> 为本据点盖印登记新乐队
-      </button>
-      <span class="text-[10px] font-mono text-neutral-600">CHINA UNDERGROUND ZINE</span>
-    </div>
-  </div>
-
-  <!-- ==================== 模态框：登记新乐队 ==================== -->
-  <div id="submit-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-[#f0eada] border-4 border-black w-full max-w-md p-5 relative shadow-[8px_8px_0px_#000]">
-      
-      <div class="flex justify-between items-center border-b-2 border-black pb-2">
-        <h3 class="text-lg font-black text-black flex items-center gap-2">
-          <i class="fa-solid fa-stamp text-red-700"></i> 盖印录入新乐队 (全网同步)
-        </h3>
-        <button onclick="window.closeSubmitModal()" class="text-black font-black hover:text-red-700 text-lg">✕</button>
-      </div>
-
-      <form id="add-band-form" onsubmit="window.submitNewBand(event)" class="mt-3.5 space-y-2.5 text-xs font-sans">
-        <div>
-          <label class="block font-bold text-black mb-0.5">乐队名称 *</label>
-          <input type="text" id="input-band-name" required placeholder="如：刺客 / 散杀 / 录耳" class="w-full bg-[#faf6ec] border-2 border-black p-1.5 font-mono text-black focus:outline-none focus:bg-white">
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block font-bold text-black mb-0.5">所属据点城市 *</label>
-            <input type="text" id="input-city-name" required placeholder="如：新乡 / 宜昌 / 台北" class="w-full bg-[#faf6ec] border-2 border-black p-1.5 font-mono text-black focus:outline-none">
-          </div>
-          <div>
-            <label class="block font-bold text-black mb-0.5">成立年份 *</label>
-            <input type="number" id="input-year" min="1970" max="2027" required placeholder="如：2011" class="w-full bg-[#faf6ec] border-2 border-black p-1.5 font-mono text-black focus:outline-none">
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-black mb-0.5">核心大类 *</label>
-          <div class="grid grid-cols-3 gap-1.5 text-xs font-mono">
-            <label class="flex items-center gap-1 p-1 border border-black bg-white cursor-pointer">
-              <input type="radio" name="input-genre-type" value="PUNK" checked> 朋克
-            </label>
-            <label class="flex items-center gap-1 p-1 border border-black bg-white cursor-pointer">
-              <input type="radio" name="input-genre-type" value="METAL"> 金属
-            </label>
-            <label class="flex items-center gap-1 p-1 border border-black bg-white cursor-pointer">
-              <input type="radio" name="input-genre-type" value="POSTROCK"> 后摇/另类
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-black mb-0.5">具体风格标签 *</label>
-          <input type="text" id="input-genre-tag" required placeholder="如：后朋克 / 迷幻氛围 / 残酷死金" class="w-full bg-[#faf6ec] border-2 border-black p-1.5 font-mono text-black focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block font-bold text-black mb-0.5">代表作 / 标志性曲目 *</label>
-          <input type="text" id="input-hit" required placeholder="如：《海浪》《逃跑的声音》《大武汉》" class="w-full bg-[#faf6ec] border-2 border-black p-1.5 font-mono text-black focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block font-bold text-black mb-0.5">乐队地下文献简介</label>
-          <input type="text" id="input-desc" placeholder="一段关于现场、声音与记忆的记录..." class="w-full bg-[#faf6ec] border-2 border-black p-1.5 font-mono text-black focus:outline-none">
-        </div>
-
-        <div class="pt-2 flex justify-end gap-2">
-          <button type="button" onclick="window.closeSubmitModal()" class="px-3 py-1.5 border border-black bg-neutral-200 font-bold hover:bg-neutral-300">取消</button>
-          <button type="submit" id="btn-submit-band" class="px-4 py-1.5 border-2 border-black bg-red-700 text-white font-black hover:bg-red-800 shadow-[-2px_2px_0px_#000]">
-            盖印收录
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==================== 图片放大 Lightbox 查看器 ==================== -->
-  <div id="image-lightbox" onclick="window.closeLightbox()" class="fixed inset-0 z-50 bg-black bg-opacity-90 hidden items-center justify-center p-4 cursor-zoom-out">
-    <div class="relative max-w-3xl max-h-[90vh] p-2 bg-[#f4ede0] border-4 border-white shadow-2xl" onclick="event.stopPropagation()">
-      <img id="lightbox-img" src="" alt="现场照片" class="max-w-full max-h-[80vh] object-contain block mx-auto filter contrast-125">
-      <div class="mt-2 text-center font-mono text-xs text-neutral-800 font-bold flex justify-between items-center px-2">
-        <span id="lightbox-caption">现场传单与票根档案</span>
-        <button onclick="window.closeLightbox()" class="bg-black text-white px-2 py-0.5 text-xs font-black">关闭 ✕</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== 核心数据与业务逻辑 (含 Firebase 联网协同) ==================== -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    /* -------------------------------------------------------------
-       1. 全国 50+ 摇滚重镇高精度地理坐标与地域风骨字典
-       ------------------------------------------------------------- */
-    const CITY_GEO_META = {
-      "北京": { province: "北京", coords: [116.4074, 39.9042], vibe: "中国摇滚策源地。工体崔健破空一吼，嚎叫、D-22到树村，朋克、重金属与新浪潮长盛不衰。" },
-      "天津": { province: "天津", coords: [117.2009, 39.0841], vibe: "九河下梢的幽默与骨气，海河之滨的地下另类与硬核新声。" },
-      "石家庄": { province: "河北", coords: [114.5149, 38.0428], vibe: "重工业厂区大院与平山滹沱河，写下中国摇滚乐最具时代伤感与文学高度的诗篇。" },
-      "保定": { province: "河北", coords: [115.4648, 38.8739], vibe: "直隶总督府旁的市井长啸，相声民俗讽刺摇滚的草根阵地。" },
-      "秦皇岛": { province: "河北", coords: [119.5999, 39.9573], vibe: "渤海之滨的风暴与冷冽冬日，阿那亚海潮与年轻独立声响。" },
-      "太原": { province: "山西", coords: [112.5489, 37.8706], vibe: "三晋老工业重镇与汾河水，粗粝直率的地下残酷死金与硬摇滚。" },
-      "新乡": { province: "河南", coords: [113.9268, 35.3036], vibe: "公认的“中国摇滚之乡”！90年代掀起轰动全国的中原摇滚狂澜，硬核血脉至今激荡。" },
-      "郑州": { province: "河南", coords: [113.6253, 34.7466], vibe: "中原大地米字铁路枢纽，厚重的历史回响与质朴平原民谣摇滚。" },
-      "洛阳": { province: "河南", coords: [112.4539, 34.6196], vibe: "十三朝古都石窟之下的电吉他，古老历史与现代车库的奇妙碰撞。" },
-      "呼和浩特": { province: "内蒙古", coords: [111.7519, 40.8427], vibe: "马头琴、陶布秀尔与呼麦低鸣，与现代重金属双踩失真无缝嫁接的辽阔游牧原野。" },
-      "包头": { province: "内蒙古", coords: [109.8404, 40.6582], vibe: "鹿城钢铁厂区与辽阔荒原，重金属节拍下的硬汉咆哮。" },
-      "沈阳": { province: "辽宁", coords: [123.4315, 41.8057], vibe: "共和国长子工业废墟上的轰鸣，直率硬朗的东北重摇滚风骨。" },
-      "大连": { province: "辽宁", coords: [121.6147, 38.9140], vibe: "北方港口的凛冬海风与生锈吊车，孕育了中国乃至世界后摇乐坛无可撼动的无冕之王。" },
-      "鞍山": { province: "辽宁", coords: [122.9943, 41.1086], vibe: "老钢都的蒸汽洗浴与幽默，流行朋克的欢乐阵地。" },
-      "长春": { province: "吉林", coords: [125.3235, 43.8171], vibe: "广袤黑土地与冰天雪地，孕育出磅礴悲悯的萨满祭祀金属与老重工业硬摇滚。" },
-      "吉林": { province: "吉林", coords: [126.5530, 43.8436], vibe: "松花江雾凇冰霜下的独立吉他，极寒之中的炙热表达。" },
-      "哈尔滨": { province: "黑龙江", coords: [126.5349, 45.8038], vibe: "极北冰城的俄式建筑与漫长严冬，锻造了充满苍凉抒情与极寒失真的摇滚之师。" },
-      "上海": { province: "上海", coords: [121.4737, 31.2304], vibe: "摩登都市夹缝里的弄堂市井朋克、冷峻工业电子与前卫独立声场。" },
-      "南京": { province: "江苏", coords: [118.7969, 32.0603], vibe: "梧桐老街与阴雨季风，哺育了全国最具文学造诣的后朋克教父与少年低传真诗篇。" },
-      "苏州": { province: "江苏", coords: [120.5853, 31.2989], vibe: "园林水巷老弄堂里的躁动电声，吴侬软语与车库朋克的戏剧对冲。" },
-      "无锡": { province: "江苏", coords: [120.3119, 31.4912], vibe: "太湖之滨的精密节拍游戏与清爽独立流行。" },
-      "常州": { province: "江苏", coords: [119.9740, 31.8112], vibe: "江南制造业枢纽里的冷波后朋克。" },
-      "徐州": { province: "江苏", coords: [117.2841, 34.2057], vibe: "五省通衢的霸王之气，淮海战役故地沉淀出的硬派摇滚铁骨。" },
-      "杭州": { province: "浙江", coords: [120.1551, 30.2741], vibe: "西湖烟雨与江南水乡的冷峻底色，后朋克、方言朋克与中式黑金属的先锋试验田。" },
-      "宁波": { province: "浙江", coords: [121.5498, 29.8684], vibe: "浙东港口的咸涩海风与暴躁车库少年。" },
-      "温州": { province: "浙江", coords: [120.6994, 27.9943], vibe: "民间资本与重商江湖夹缝里的反叛地下Livehouse。" },
-      "绍兴": { province: "浙江", coords: [120.5822, 30.0024], vibe: "黄酒陈酿芬芳里的吉他咆哮与水乡书卷风骨。" },
-      "合肥": { province: "安徽", coords: [117.2272, 31.8206], vibe: "江淮之间的大地回声，独立摇滚与民谣诗篇。" },
-      "安庆": { province: "安徽", coords: [117.0587, 30.5379], vibe: "黄梅戏故里与长江渡口，传统唱腔与电声的先锋结合。" },
-      "福州": { province: "福建", coords: [119.2965, 26.0745], vibe: "东南沿海潮湿雨季，独立流行与民谣低吟。" },
-      "厦门": { province: "福建", coords: [118.1102, 24.4905], vibe: "海岛琴声与潮水微风，细腻干净的独立摇滚与盯鞋浪潮。" },
-      "泉州": { province: "福建", coords: [118.5894, 24.9088], vibe: "半城烟火半城仙，南音古乐与地下摇滚的奇幻交融。" },
-      "南昌": { province: "江西", coords: [115.8579, 28.6830], vibe: "英雄城的草根江湖，中国地下摇滚最决绝、最具反抗精神的传奇发源地。" },
-      "九江": { province: "江西", coords: [115.9928, 29.7120], vibe: "浔阳江头琵琶行，庐山云雾里的器乐后摇篇章。" },
-      "赣州": { province: "江西", coords: [114.9359, 25.8318], vibe: "客家摇篮与宋城古墙，红土地里的独立摇滚。" },
-      "济南": { province: "山东", coords: [117.1205, 36.6512], vibe: "泉水汩汩与豪迈直爽，大明湖畔的北方硬派摇滚。" },
-      "青岛": { province: "山东", coords: [120.3826, 36.0671], vibe: "红瓦绿树碧海蓝天，冲浪朋克与海雾自赏的乐园。" },
-      "淄博": { province: "山东", coords: [118.0559, 36.8135], vibe: "齐国故都与老工业重镇，谢天笑的摇滚故里，古筝与Grunge的摇篮。" },
-      "威海": { province: "山东", coords: [122.1205, 37.5131], vibe: "海角天涯的天尽头，温暖干净的独立自赏音浪。" },
-      "武汉": { province: "湖北", coords: [114.3055, 30.5928], vibe: "码头文化的粗犷坚韧与暴躁血气，中国公认的“朋克之都”。江汉平原的地下火种从不熄灭。" },
-      "宜昌": { province: "湖北", coords: [111.2865, 30.6919], vibe: "三峡门户与高峡平湖，峡江奔流催生的豪放重型力量。" },
-      "襄阳": { province: "湖北", coords: [112.1224, 32.0085], vibe: "铁打的襄阳古城墙，汉江边的侠义摇滚之声。" },
-      "长沙": { province: "湖南", coords: [112.9388, 28.2282], vibe: "火辣湘江水，CSHC重型硬核与全国最火爆的Livehouse现场。" },
-      "株洲": { province: "湖南", coords: [113.1339, 27.8274], vibe: "南方铁路机车工业之都，钢轨轰鸣般的工业摇滚力量。" },
-      "湘潭": { province: "湖南", coords: [112.9441, 27.8297], vibe: "湘江之湾，红色热土与青年独立噪音声响。" },
-      "广州": { province: "广东", coords: [113.2644, 23.1291], vibe: "打口带文化发祥地与南方先驱，方言海风与岭南古琴后摇交织。" },
-      "深圳": { province: "广东", coords: [114.0579, 22.5431], vibe: "年轻移民城市的钢铁丛林，实验噪音与现代独立声响的前沿。" },
-      "珠海": { province: "广东", coords: [113.5767, 22.2707], vibe: "情侣路海风吹拂的浪漫独立流行与海岛雷鬼。" },
-      "汕头": { province: "广东", coords: [116.6820, 23.3540], vibe: "潮汕工夫茶香与生猛海鲜，潮汕方言独立新浪潮。" },
-      "海丰": { province: "广东", coords: [115.3235, 22.9665], vibe: "红宫红场与海丰戏班，五条人在此用海丰方言歌唱大地市井。" },
-      "南宁": { province: "广西", coords: [108.3661, 22.8172], vibe: "亚热带茂密丛林，原生态民谣摇滚与草根现场。" },
-      "桂林": { province: "广西", coords: [110.2902, 25.2736], vibe: "甲天下山水间的漓江琴声，漂泊吉他手的灵性港湾。" },
-      "钦州": { province: "广西", coords: [108.6541, 21.9800], vibe: "北部湾海滨小城，回春丹在此诞生，带给全国最上头的复古车库摇滚。" },
-      "海口": { province: "海南", coords: [110.1983, 20.0440], vibe: "热带椰林与无尽潮汐，海岛冲浪摇滚的自由漫步。" },
-      "重庆": { province: "重庆", coords: [106.5516, 29.5630], vibe: "山城雾气与坚硬石阶，重金属与粗暴独立力量在江风中咆哮。" },
-      "成都": { province: "四川", coords: [104.0668, 30.5728], vibe: "小酒馆的一盏暖灯，孕育了全国最富浪漫唯美气质与先锋电气探索的西南摇滚土壤。" },
-      "绵阳": { province: "四川", coords: [104.6791, 31.4675], vibe: "中国科技城腹地的老厂区，独立摇滚与民谣青年聚居地。" },
-      "贵阳": { province: "贵州", coords: [106.6302, 26.6477], vibe: "西南喀斯特山林迷雾，奇幻迷离的独立民谣与先锋重声响。" },
-      "遵义": { province: "贵州", coords: [106.9272, 27.7256], vibe: "红色古城大山深处的粗犷电吉他与方言呐喊。" },
-      "昆明": { province: "云南", coords: [102.7123, 25.0406], vibe: "高山深谷与春城阳光，不妥协的文学隐喻与云贵高原神秘律动。" },
-      "大理": { province: "云南", coords: [100.2297, 25.5916], vibe: "苍山洱海之间，全国漂泊音乐人的精神避难所与雷鬼乌托邦。" },
-      "昭通": { province: "云南", coords: [103.7172, 27.3370], vibe: "乌蒙山深处的寂寞小城，腰乐队/寸铁在此孕育出华语独立乐的文学孤峰。" },
-      "拉萨": { province: "西藏", coords: [91.1721, 29.6525], vibe: "雪域圣境之上，古老藏调长鸣与现代失真电声的震撼碰撞。" },
-      "西安": { province: "陕西", coords: [108.9398, 34.3416], vibe: "八百里秦川的苍茫风骨与防空洞，孕育出全国最深邃的后朋克迷幻奇迹（如Lur）、老牌残酷死金与根源秦腔摇滚。" },
-      "宝鸡": { province: "陕西", coords: [107.1449, 34.3693], vibe: "西府秦腔发祥地与老重工铁路基地，粗犷硬派的西北之声。" },
-      "延安": { province: "陕西", coords: [109.4908, 36.5965], vibe: "陕北黄土高原信天游与唢呐，黄河壶口瀑布般的奔放豪气。" },
-      "兰州": { province: "甘肃", coords: [103.8343, 36.0611], vibe: "奔腾穿城的黄河之水与干燥戈壁，写满了异乡游子的酒杯与黄河谣。" },
-      "西宁": { province: "青海", coords: [101.7782, 36.6231], vibe: "高原明珠，辽阔草原与雪山呼麦的壮阔交响。" },
-      "银川": { province: "宁夏", coords: [106.2309, 38.4872], vibe: "贺兰山阙，黄河古渡。花儿唱腔与重型摇滚结合的摇滚沃土。" },
-      "乌鲁木齐": { province: "新疆", coords: [87.6168, 43.8256], vibe: "辽阔荒漠与雪山戈壁，锻造了全中国最凶悍如利刃般的节奏器乐与先锋游牧实验。" },
-      "克拉玛依": { province: "新疆", coords: [84.8893, 45.5793], vibe: "黑油山戈壁油田走出的硬派摇滚铁血。" },
-      "台北": { province: "台湾", coords: [121.5654, 25.0330], vibe: "从老牌刺客、伍佰的草根狂飙，到草东、落日飞车引领的浪潮，华语摇滚极其厚重的一极。" },
-      "高雄": { province: "台湾", coords: [120.3119, 22.6207], vibe: "港都粗粝工人力量与大港开唱海风，美浓客家农工摇滚的震颤之声。" },
-      "台南": { province: "台湾", coords: [120.2025, 22.9997], vibe: "古都温润历史长河中的情绪后摇重镇（声子虫、晨曦光廊）。" },
-      "台中": { province: "台湾", coords: [120.6736, 24.1477], vibe: "盆地中心的热烈独立摇滚与流行摇滚聚落。" },
-      "花莲": { province: "台湾", coords: [121.6068, 23.9872], vibe: "太平洋巨浪拍击苏花断崖，原住民族古调与现代电吉他的浩瀚回荡。" },
-      "香港": { province: "香港", coords: [114.1694, 22.3193], vibe: "九龙与港岛的霓虹下，Beyond的理想呐喊，黑鸟、荔枝王的地下硬核朋克抗争，轰鸣不断。" },
-      "澳门": { province: "澳门", coords: [113.5439, 22.1987], vibe: "中西融汇的大西洋海浪，多元先锋的独立声响与车库摇滚。" }
+    <script>
+    /********************************************************************
+     * 1. 核心城市网格坐标库 (覆盖全国 34 省级行政区、72 座摇滚城市)
+     ********************************************************************/
+    const CITY_COORDS = {
+        "北京": { prov: "北京市", coord: [116.4074, 39.9042], desc: "中国摇滚风暴眼：从圆明园、树村、五道口豪运到D-22与School的世代交替" },
+        "武汉": { prov: "湖北省", coord: [114.3055, 30.5928], desc: "江城朋克之都：鲁磨路VOX的躁动汗水与硬核朋克、数学摇滚重镇" },
+        "西安": { prov: "陕西省", coord: [108.9398, 34.3416], desc: "西北秦腔与后朋克重镇：城墙根下的冷峻低音、老牌激流金属与迷幻声场" },
+        "石家庄": { prov: "河北省", coord: [114.5149, 38.0428], desc: "华北平原重工业之城：药厂大院、北方锈带与《我爱摇滚乐》精神原乡" },
+        "成都": { prov: "四川省", coord: [104.0665, 30.5728], desc: "西南地下声学乌托邦：从小酒馆走出的诗意器乐、暗潮后朋克与合成器浪潮" },
+        "台北": { prov: "台湾省", coord: [121.5654, 25.0330], desc: "华语独立摇滚与地下噪音重镇：从水晶唱片、温罗汀地下场景到当代浪潮" },
+        "高雄": { prov: "台湾省", coord: [120.3014, 22.6273], desc: "南方港都生猛海风：大港开唱与直白滚烫的南台湾摇滚血脉" },
+        "台南": { prov: "台湾省", coord: [120.2270, 22.9997], desc: "古都实验器乐与数字摇滚温床" },
+        "香港": { prov: "香港特别行政区", coord: [114.1694, 22.3193], desc: "高山剧场与工厦排练室：从Beyond、黑鸟到硬核朋克与数学摇滚" },
+        "澳门": { prov: "澳门特别行政区", coord: [113.5439, 22.1987], desc: "半岛独立声响与先锋实验现场" },
+        "上海": { prov: "上海市", coord: [121.4737, 31.2304], desc: "都会先锋实验与冷冽之声：育音堂、哈雷酒吧与独立怪诞美学" },
+        "南京": { prov: "江苏省", coord: [118.7969, 32.0603], desc: "江南文脉与阴郁后朋克、重型声浪交织之城" },
+        "杭州": { prov: "浙江省", coord: [120.1551, 30.2741], desc: "西湖暗涌：独立自赏、方言朋克与迷幻电子现场" },
+        "广州": { prov: "广东省", coord: [113.2644, 23.1291], desc: "南国打口带圣地：陶街、大沙头滋养出的多元跨界独立声场" },
+        "深圳": { prov: "广东省", coord: [114.0579, 22.5431], desc: "本色酒吧与B10现场：南方前卫声响与都市独立浪潮" },
+        "海丰": { prov: "广东省", coord: [115.3235, 22.9665], desc: "南方县城叙事：咸湿海风、塑料袋与野生县城民谣朋克" },
+        "梅州": { prov: "广东省", coord: [116.1222, 24.2886], desc: "九连山脉客家小城：小号、山歌与狂暴原生态摇滚" },
+        "大连": { prov: "辽宁省", coord: [121.6147, 38.9140], desc: "北方海港器乐后摇圣地：海雾、船厂与绵延不绝的器乐音墙" },
+        "沈阳": { prov: "辽宁省", coord: [123.4315, 41.8057], desc: "铁西区工业重金属与东北摇滚老炮集结地" },
+        "长春": { prov: "吉林省", coord: [125.3235, 43.8171], desc: "北国重工业史诗：森林、冰雪与气势恢宏的重型金属" },
+        "哈尔滨": { prov: "黑龙江省", coord: [126.5349, 45.8038], desc: "冰城凛冽旋律：北方大平原的浪漫与硬朗" },
+        "乌鲁木齐": { prov: "新疆维吾尔自治区", coord: [87.6168, 43.8256], desc: "西域工业实验与极端硬核先驱：戈壁狂风中的先锋巨响" },
+        "克拉玛依": { prov: "新疆维吾尔自治区", coord: [84.8892, 45.5799], desc: "黑油山荒原上的重型金属与硬核脉冲" },
+        "呼和浩特": { prov: "内蒙古自治区", coord: [111.7492, 40.8426], desc: "草原马头琴、呼麦与狂暴民族重金属大本营" },
+        "兰州": { prov: "甘肃省", coord: [103.8343, 36.0611], desc: "黄河铁桥下的西北民谣根源与粗粝地下排练室" },
+        "银川": { prov: "宁夏回族自治区", coord: [106.2309, 38.4872], desc: "贺兰山脚下的西北豪情与苍凉摇滚" },
+        "西宁": { prov: "青海省", coord: [101.7782, 36.6171], desc: "青藏高原门户的高原根源声响" },
+        "昆明": { prov: "云南省", coord: [102.8329, 24.8801], desc: "西南边陲的湿润幻梦：雷鬼、民谣与迷幻诗意" },
+        "昭通": { prov: "云南省", coord: [103.7175, 27.3382], desc: "乌蒙山深处的锋利手术刀：中国地下摇滚最深邃的文学隐秘坐标" },
+        "大理": { prov: "云南省", coord: [100.2676, 25.6065], desc: "苍山洱海间的游牧音乐人与即兴实验公社" },
+        "南昌": { prov: "江西省", coord: [115.8582, 28.6829], desc: "赣江地下火焰：生猛粗粝的南方街头朋克与黑金属" },
+        "长沙": { prov: "湖南省", coord: [112.9388, 28.2282], desc: "湘江硬核（CSHC）与极端金属重镇" },
+        "重庆": { prov: "重庆市", coord: [106.5516, 29.5630], desc: "山城赛博雾气：嘉陵江畔的热血情绪摇滚与朋克现场" },
+        "新乡": { prov: "河南省", coord: [113.9268, 35.3030], desc: "98新乡摇滚音乐节圣地：中原大地的中国摇滚之乡" },
+        "郑州": { prov: "河南省", coord: [113.6253, 34.7466], desc: "中原铁路枢纽：7LIVEHOUSE与厚重的中原独立之声" },
+        "济南": { prov: "山东省", coord: [117.1201, 36.6512], desc: "齐鲁大地的豪迈失真与独立乐队群落" },
+        "青岛": { prov: "山东省", coord: [120.3826, 36.0671], desc: "海风、啤酒与硬朗北方吉他摇滚" },
+        "淄博": { prov: "山东省", coord: [118.0549, 36.8135], desc: "鲁中工业重镇的垃圾摇滚与古风摇滚源头" },
+        "天津": { prov: "天津市", coord: [117.2010, 39.0842], desc: "海河畔的诙谐朋克、旋死金属与独立流行" },
+        "太原": { prov: "山西省", coord: [112.5489, 37.8706], desc: "晋中煤铁重工业土壤中的金属与后摇新声" },
+        "合肥": { prov: "安徽省", coord: [117.2272, 31.8206], desc: "江淮之间的独立摇滚与青年噪音现场" },
+        "芜湖": { prov: "安徽省", coord: [118.3765, 31.3263], desc: "长江皖江段的前卫艺术与先锋音乐源头" },
+        "福州": { prov: "福建省", coord: [119.2965, 26.0745], desc: "闽江口岸的潮湿后摇与金属声浪" },
+        "厦门": { prov: "福建省", coord: [118.0894, 24.4798], desc: "海岛数学摇滚、器乐摇滚与海岸独立节拍" },
+        "南宁": { prov: "广西壮族自治区", coord: [108.3665, 22.8170], desc: "南方亚热带季风里的独立器乐与实验现场" },
+        "桂林": { prov: "广西壮族自治区", coord: [110.2902, 25.2736], desc: "山水喀斯特地貌孕育的温暖合成器与独立流行" },
+        "钦州": { prov: "广西壮族自治区", coord: [108.6541, 21.9797], desc: "北部湾海边小城走出的抓耳吉他Riff风暴" },
+        "贵阳": { prov: "贵州省", coord: [106.6302, 26.6477], desc: "喀斯特山林间的魔幻方言民谣与冷冽金属" },
+        "海口": { prov: "海南省", coord: [110.3312, 20.0319], desc: "热带岛屿的海风独立摇滚与迷幻律动" },
+        "拉萨": { prov: "西藏自治区", coord: [91.1409, 29.6456], desc: "世界屋脊上的藏地原生态重型摇滚与吟唱" }
     };
 
-    /* -------------------------------------------------------------
-       2. 全量 500+ 去重真实中国地下乐队原始核心数据 (硬编码大典)
-       ------------------------------------------------------------- */
-    const RAW_500_BANDS_MANIFEST = [
-      ["万能青年旅店", "石家庄", "河北", 2002, "POSTROCK", "前卫摇滚/管乐/诗意摇滚", "杀死那个石家庄人", "华语摇滚史诗孤峰，小号撕裂工业暮色。"],
-      ["痛仰", "北京", "北京", 1999, "PUNK", "Hardcore/独立摇滚", "这是个问题", "树村走出的铁血硬汉，哪吒精神的守望者。"],
-      ["新裤子", "北京", "北京", 1996, "PUNK", "新浪潮/车库朋克", "我们的时代", "从皮衣朋克到时代青年挽歌，荷尔蒙永不褪色。"],
-      ["二手玫瑰", "北京", "北京", 1999, "POSTROCK", "民乐二人转摇滚/艺术摇滚", "仙儿", "梁龙的唢呐与红绿花布，将中国民间戏谑推向极致。"],
-      ["舌头", "乌鲁木齐", "新疆", 1994, "PUNK", "硬核摇滚/工业硬核", "这就是你", "“骨头是站立的，舌头是歌唱的！”地下最锋利的利刃。"],
-      ["木马", "北京", "北京", 1998, "POSTROCK", "暗黑哥特/艺术摇滚", "纯洁", "谢强笔下的诗意与神经质，华丽冷艳的时代绝唱。"],
-      ["声音玩具", "成都", "四川", 1999, "POSTROCK", "艺术摇滚/唯美独立", "明天你依旧在我身旁", "欧珈源精雕细琢的诗意编曲，西南美学之巅。"],
-      ["声音碎片", "北京", "北京", 2001, "POSTROCK", "唯美独立/诗歌摇滚", "优美的低于生活", "马玉龙写下华语独立乐最沉静深邃的诗句。"],
-      ["PK14", "南京", "江苏", 1997, "PUNK", "后朋克/艺术朋克标杆", "红胜火", "杨海崧神经质的念白与尖锐吉他，影响两代中国独立乐队。"],
-      ["Carsick Cars", "北京", "北京", 2005, "POSTROCK", "No Wave/噪音摇滚", "中南海", "D-22时代的噪音代表，撕裂音箱的吉他啸叫与全场香烟。"],
-      ["刺猬", "北京", "北京", 2005, "POSTROCK", "Grunge/另类噪音", "火车驶向云外，梦安魂于九霄", "“一代人终将老去，但总有人正年轻。”"],
-      ["后海大鲨鱼", "北京", "北京", 2004, "POSTROCK", "Dance-Rock/车库摇滚", "Bling Bling Bling", "车库舞曲大暴动，席卷一代青年。"],
-      ["Joyside", "北京", "北京", 2001, "PUNK", "车库朋克/浪漫浪人摇滚", "Dong Dong Dong", "酒精与烟草浸泡出的地下浪漫主义传奇。"],
-      ["脑浊", "北京", "北京", 1997, "PUNK", "Ska-Punk/街头硬核", "欢迎来到北京", "走出国门征战欧美巡演的老牌硬核劲旅。"],
-      ["反光镜", "北京", "北京", 1997, "PUNK", "流行朋克/街头朋克", "嚎叫", "嚎叫俱乐部四驱车之一，万人大合唱的青春火种。"],
-      ["地下婴儿", "北京", "北京", 1992, "PUNK", "车库朋克鼻祖", "觉醒", "中国第一支纯正朋克乐队，开创胡同青年的反叛血脉。"],
-      ["花儿乐队", "北京", "北京", 1998, "PUNK", "流行朋克开山", "静止", "大张伟十四岁写下的天才朋克挽歌。"],
-      ["诱导社", "北京", "北京", 1997, "PUNK", "肮脏放克朋克/荒诞摇滚", "见红", "雷霖手中辛辣刺骨的解剖刀，市井欲望的极致白描。"],
-      ["生命之饼", "武汉", "湖北", 1996, "PUNK", "凯尔特朋克/街头硬核", "大武汉", "吴维手中永不熄灭的风笛与热血，汉口码头骨气，中国朋克旗帜。"],
-      ["SUBS", "北京", "北京", 2002, "PUNK", "Garage Punk/艺术硬核", "Down", "抗猫撕心裂肺的现场爆发力，中国独立地下不可磨灭的传奇。"],
-      ["过失", "北京", "北京", 2004, "PUNK", "Street Punk/硬核朋克", "Out of Control", "纯粹生猛的鸡冠头硬核朋克代表，撕裂舞台的音墙。"],
-      ["蜜三刀", "北京", "北京", 1999, "PUNK", "Oi! Punk/光头党朋克", "中国皮肤", "雷骏掌舵的中国Oi!朋克图腾，马丁靴与背带裤的硬派记忆。"],
-      ["69乐队", "北京", "北京", 1997, "PUNK", "Old School Punk", "无聊军队", "无聊军队重要四驱之一，粗糙反叛的四和弦时代。"],
-      ["A-Boys", "北京", "北京", 1998, "PUNK", "Hardcore Punk", "我和你", "嚎叫俱乐部沈岳领军，纯正街头少年之声。"],
-      ["挂在盒子上", "北京", "北京", 1998, "PUNK", "女子朋克/Riot Grrrl", "Asshole I'm Not Your Baby", "登上美国《新闻周刊》封面的中国全女子硬核传奇。"],
-      ["军械所", "北京", "北京", 1999, "PUNK", "重型硬核金属朋克", "大车", "重型工业车床般的打击乐与工人阶级怒火。"],
-      ["病蛹", "北京", "北京", 1999, "METAL", "Nu-Metal/说唱金属", "愤怒的蛹", "暴怒的工业失真音浪。"],
-      ["扭曲的机器", "北京", "北京", 1998, "METAL", "Nu-Metal/饶舌金属", "镜子中", "中国新金属时代的绝对代表，点燃无数青年跳跃Pogo。"],
-      ["夜叉", "北京", "北京", 1995, "METAL", "重金属/新金属/金属核", "哪怕只有一天", "胡松领军的中国金属旗舰，铁血硬朗，横扫舞台。"],
-      ["AK-47", "北京", "北京", 2000, "METAL", "工业金属", "无法容忍", "老吴手中的冰冷机械冲锋枪，狂暴的节奏重压。"],
-      ["窒息", "北京", "北京", 1997, "METAL", "激流金属 (Thrash Metal)", "纷飞", "刘铮领衔，纯正Thrash金属力量，坚守重型二十余年。"],
-      ["施教日", "北京", "北京", 1999, "METAL", "黑金属 (Black Metal)", "天幕", "暗黑交响与邪典吉他琶音，中国极端黑金属先驱。"],
-      ["葬尸湖", "杭州", "浙江", 1998, "METAL", "中式氛围黑金属宗师", "弈秋", "蓑衣斗笠，长啸江山，将中国传统哀思与黑金属推向全球巅峰。"],
-      ["九宝", "呼和浩特", "内蒙古", 2011, "METAL", "游牧民谣金属", "特斯河之赞", "疾速狂奔的马蹄律动与重金属失真，听者无不血脉偾张。"],
-      ["杭盖", "呼和浩特", "内蒙古", 2004, "POSTROCK", "民族民谣摇滚", "酒歌", "征服欧美国际大型摇滚音乐节的草原雄鹰，呼麦撼人。"],
-      ["颠覆M", "呼和浩特", "内蒙古", 2000, "METAL", "金属核 (Metalcore)/游牧核心", "蒙古精神", "凶残的Breakdown死金节奏中融入苍凉马头琴。"],
-      ["萨满", "长春", "吉林", 2006, "METAL", "工业金属/萨满史诗金属", "Whalesong", "东北金属无上王者，震撼天地的管风琴与重型死腔。"],
-      ["霜冻前夜", "北京", "北京", 2004, "METAL", "黑暗旋律金属", "极夜之光", "极具人文厚度与华丽吉他织体的旋死之师。"],
-      ["郁乐队", "北京", "北京", 2003, "METAL", "旋律死亡金属", "在这一瞬间", "夺得Wacken全球金属战火总冠军的华语旋死骄傲。"],
-      ["左右", "北京", "北京", 2005, "METAL", "新金属/旋律核", "别让梦醒来", "旋律感极强的新金属大合唱之王。"],
-      ["肆伍", "北京", "北京", 2004, "METAL", "死核 (Deathcore)", "迎头痛击", "凶悍密集的双踩与低吼压迫感。"],
-      ["零壹", "北京", "北京", 2003, "METAL", "宗教先锋金属/工业死金", "李小龙", "李难的残暴黑腔与唢呐、长调呼啸，极致狂暴。"],
-      ["末裔", "北京", "北京", 2002, "METAL", "前卫金属/中国风金属", "归途", "古筝与交响编织的深邃前卫金属。"],
-      ["黑麒", "长春", "吉林", 2013, "METAL", "中式民乐黑金属", "南京", "京剧唱腔与凶狠黑金属的悲壮历史叙事。"],
-      ["虚极", "北京", "北京", 2014, "METAL", "后黑金属/氛围黑金", "星辰", "浩瀚如宇宙般深邃的冷冽自赏黑金。"],
-      ["惊叫基督", "上海", "上海", 2001, "METAL", "交响黑金属", "暗月誓言", "华丽交响与凶狠黑腔并重的申城重型骄傲。"],
-      ["朝生暮死", "北京", "北京", 2003, "METAL", "残酷死金", "绝境", "地下重金属极端残忍律动。"],
-      ["判官", "北京", "北京", 2005, "METAL", "纯正激流金属", "斩立决", "复古Thrash金属双吉他竞速。"],
-      ["雪沉", "石家庄", "河北", 2015, "METAL", "国风民谣金属", "乌江叹", "重型音墙中的楚汉悲歌与古典诗词意境。"],
-      ["小雨", "广州", "广东", 2005, "METAL", "女声哥特民乐金属", "苦竹林", "竹笛女声与重型音墙的华丽碰撞。"],
-      ["败犬", "北京", "北京", 2015, "PUNK", "街头朋克/Ska", "永恒的街头", "马丁靴与热血律动。"],
-      ["板砖", "杭州", "浙江", 2001, "PUNK", "Ska-Punk/杭州方言朋克", "做个流氓真牛逼", "地下最无厘头、最生猛的草根方言朋克天团。"],
-      ["Old Doll", "北京", "北京", 2004, "PUNK", "老式朋克", "玩具时代", "地下糙厉三和弦。"],
-      ["The Noname", "西安", "陕西", 2001, "PUNK", "街头朋克先驱", "Sick and Tired", "古城走出的国际街头朋克硬汉，欧洲巡演战绩赫赫。"],
-      ["牙龈出血", "北京", "北京", 2006, "PUNK", "硬核街头朋克", "City of Hate", "咆哮出愤怒与决绝的鸡冠头硬汉。"],
-      ["小熊饼干", "乌鲁木齐", "新疆", 2004, "PUNK", "流行朋克", "阳光少年", "天山脚下欢快跳跃的三和弦。"],
-      ["排骨", "沈阳", "辽宁", 2003, "PUNK", "硬核朋克", "废弃工场", "长子工厂大院里的呐喊。"],
-      ["驳倒", "北京", "北京", 2007, "PUNK", "车库朋克", "否定一切", "糙粝音箱前的不妥协。"],
-      ["与人", "杭州", "浙江", 2002, "PUNK", "荒诞政治讽刺朋克", "广大市民的生活", "极具辛辣讽刺的相声式朋克艺术。"],
-      ["巴主席", "杭州", "浙江", 2010, "PUNK", "农业放克朋克", "万物皆可朋", "颠覆常规的草根恶搞与无厘头狂欢。"],
-      ["脏手指", "上海", "上海", 2013, "PUNK", "车库朋克/浪荡恶棍", "我学音乐半途而废", "管金陵领军，中国当下最具原始暴烈魅力的车库天团。"],
-      ["回春丹", "钦州", "广西", 2016, "POSTROCK", "复古独立摇滚/车库", "初恋", "钦州走出的妙药灵丹，魔性舞步与野性嗓音。"],
-      ["盘尼西林", "北京", "北京", 2012, "POSTROCK", "英伦摇滚/另类", "雨夜曼彻斯特", "浪漫复古的英伦吉他与90年代情怀。"],
-      ["九连真人", "广州", "广东", 2018, "POSTROCK", "客家话热血摇滚/唢呐摇滚", "莫欺少年穷", "小号与唢呐齐鸣，客家小镇青年的逆天改命之声。"],
-      ["五条人", "海丰", "广东", 2008, "POSTROCK", "海丰方言民谣摇滚/塑料艺术", "阿珍爱上了阿强", "人字拖与红色塑料袋，海陆丰市井英雄的时代狂欢。"],
-      ["瓦依那", "南宁", "广西", 2015, "POSTROCK", "田野民谣摇滚/根源摇滚", "大梦", "“半耕半读，稻子熟了就回田里。”唱哭全中国的泥土芬芳。"],
-      ["房东的猫", "武汉", "湖北", 2013, "POSTROCK", "民谣摇滚/独立清新", "云烟成雨", "中南大走出的清泉之声，陪伴一代年轻人的温柔旋律。"],
-      ["好妹妹", "北京", "北京", 2010, "POSTROCK", "民谣流行", "你飞到城市另一边", "温暖复古的城市民谣弹唱。"],
-      ["鹿先森", "北京", "北京", 2015, "POSTROCK", "民谣摇滚", "春风十里", "都市青年关于远方的诗意寄托。"],
-      ["丢火车", "哈尔滨", "黑龙江", 2004, "POSTROCK", "民谣摇滚/独立流行", "白兰鸽巡游记", "来自极北黑土地的铁轨呼啸，深沉而温暖的漂泊诗意。"],
-      ["水木年华", "北京", "北京", 2001, "POSTROCK", "校园民谣摇滚", "一生有你", "清华园走出的经典校园人文记忆。"],
-      ["野孩子", "兰州", "甘肃", 1995, "POSTROCK", "西北民谣摇滚先驱", "黄河谣", "在黄河边弹断琴弦，把大西北的土地深深烙入骨髓。"],
-      ["低苦艾", "兰州", "甘肃", 1999, "POSTROCK", "民谣摇滚/根源摇滚", "兰州 兰州", "“兰州，总是在清晨出走。”一代游子最深沉的乡愁。"],
-      ["布衣", "银川", "宁夏", 1995, "POSTROCK", "西北民谣摇滚/硬摇滚", "罗马表", "吴宁越来自宁夏黄土地的纯粹呼喊，唱绝了大西北的豪迈。"],
-      ["苏阳", "银川", "宁夏", 2003, "POSTROCK", "西北根源花儿摇滚", "贤良", "将秦腔、宁夏花儿与现代摇滚融合的无上大师。"],
-      ["黑撒", "西安", "陕西", 2007, "POSTROCK", "陕西方言摇滚/市井民谣", "流川枫与苍井空", "原汁原味的关中方言，写尽秦川市井凡人的悲喜冷暖。"],
-      ["马飞", "西安", "陕西", 2008, "POSTROCK", "陕西方言幽默摇滚", "我能chua", "犀利辛辣的市井素描，关中草根生活的荒诞与浪漫。"],
-      ["张尕怂", "白银", "甘肃", 2008, "POSTROCK", "西北民间小调摇滚", "谈恋爱", "西北民间花儿与三弦弹唱的野性活力。"],
-      ["尧十三", "贵阳", "贵州", 2011, "POSTROCK", "西南方言民谣摇滚", "寡妇王二娘", "荒诞与绝望并存的贵州山野挽歌。"],
-      ["贰佰", "阿拉善", "内蒙古", 2011, "POSTROCK", "民谣摇滚", "玫瑰", "来自大漠深处的苍凉与深情。"],
-      ["宋冬野", "北京", "北京", 2011, "POSTROCK", "民谣摇滚", "董小姐", "粗粝沙哑的嗓音，安和桥下的时代素描。"],
-      ["马頔", "北京", "北京", 2011, "POSTROCK", "民谣摇滚", "南山南", "麻油叶民谣组织发起者，凄美诗意。"],
-      ["赵雷", "北京", "北京", 2006, "POSTROCK", "民谣摇滚", "成都", "胡同与小酒馆之间的人间烟火。"],
-      ["赵照", "聊城", "山东", 1998, "POSTROCK", "民谣摇滚", "当你老了", "温润深沉的齐鲁诗意。"],
-      ["万晓利", "邯郸", "河北", 1997, "POSTROCK", "前卫民谣/另类摇滚", "这一切没有想象的那么糟", "一把木吉他与口琴，先锋通灵的音乐哲人。"],
-      ["周云蓬", "沈阳", "辽宁", 1999, "POSTROCK", "盲诗人民谣摇滚", "九月", "走遍天涯海角的游吟诗人，悲天悯人的史诗之作。"],
-      ["小河", "邯郸", "河北", 1999, "POSTROCK", "先锋实验民谣", "飞得高的鸟不落在跑得快的马背上", "美好药店主唱，天马行空的实验大师。"],
-      ["张玮玮&郭龙", "兰州", "甘肃", 2006, "POSTROCK", "诗意手风琴民谣", "米店", "“三月的烟雨，飘摇的南方。”手风琴划过一代青年的梦境。"],
-      ["张佺", "兰州", "甘肃", 1995, "POSTROCK", "冬不拉与大漠民谣", "远行", "野孩子灵魂人物，如戈壁长风般纯粹。"],
-      ["老狼", "北京", "北京", 1994, "POSTROCK", "校园民谣时代旗手", "同桌的你", "陪伴几代中国人青春记忆的温暖嗓音。"],
-      ["钟立风", "杭州", "浙江", 1995, "POSTROCK", "博尔赫斯文学民谣", "在路旁", "充满手风琴浪漫与文学气息的漫游者。"],
-      ["马条", "克拉玛依", "新疆", 1994, "POSTROCK", "西北硬派民谣摇滚", "封锁线", "克拉玛依油田走出的硬汉铁血。"],
-      ["莫西子诗", "凉山", "四川", 2008, "POSTROCK", "大凉山彝族原生态摇滚", "要死就一定要死在你手里", "大凉山深处的泥土气息与灵魂长啸。"],
-      ["秘密后院", "广州", "广东", 2007, "POSTROCK", "中式琴禅民谣摇滚", "神游", "将传统诗词与现代声响融为一体的隐士之声。"],
-      ["衣湿", "宜宾", "四川", 2010, "POSTROCK", "川南方言民谣摇滚", "宜宾夜市土豪情歌", "宜宾方言与双簧管碰撞出的市井狂欢。"],
-      ["山人乐队", "昆明", "云南", 1999, "POSTROCK", "云贵原生态摇滚/雷鬼", "三十年", "汉族、佤族与布依族乐器与大混响电吉他的狂欢。"],
-      ["大乔小乔", "临沂", "山东", 2007, "POSTROCK", "城市诗意民谣", "消失的光年", "纯净叔侄对唱，温暖而悠远。"],
-      ["花粥", "乌鲁木齐", "新疆", 2012, "POSTROCK", "独立民谣", "老中医", "幽默直白的地下民谣小调。"],
-      ["程璧", "滨州", "山东", 2012, "POSTROCK", "诗歌民谣", "我想和你虚度时光", "以诗入歌的安静沉思。"],
-      ["陈鸿宇", "额尔古纳", "内蒙古", 2015, "POSTROCK", "独立民谣", "理想三旬", "低沉磁性嗓音，呼伦贝尔大草原的游子心迹。"],
-      ["谢春花", "杭州", "浙江", 2015, "POSTROCK", "独立民谣流行", "借我", "清新自然、自作词曲的新一代女声。"],
-      ["郝云", "北京", "北京", 2006, "POSTROCK", "城市民谣摇滚/三弦摇滚", "去大理", "三弦与大鼓构建的京味民谣摇滚。"],
-      ["洪启", "和田", "新疆", 1992, "POSTROCK", "新民歌民谣摇滚", "红雪莲", "丝绸之路上的赤子吟唱。"],
-      ["刘东明", "滕州", "山东", 2000, "POSTROCK", "市井批判民谣", "倒车", "刘二爷手中冷峻锋利的民谣讽刺刀。"],
-      ["邵夷贝", "青岛", "山东", 2009, "POSTROCK", "独立民谣", "大龄文艺女青年之歌", "北大学子写给时代的诙谐小调。"],
-      ["曹方", "西双版纳", "云南", 2003, "POSTROCK", "自在独立流行/民谣", "黑色香水", "热带雨林里生长出的灵动才女。"],
-      ["叶蓓", "北京", "北京", 1996, "POSTROCK", "校园民谣女声先驱", "纯真年代", "麦田音乐红白蓝时代的标志女声。"],
-      ["沈庆", "乐山", "四川", 1992, "POSTROCK", "校园民谣开拓者", "青春", "中国校园民谣运动的开创者之一。"],
-      ["杨一", "沧州", "河北", 1995, "POSTROCK", "街头吟游民谣", "内部参考", "一把吉他一个口琴，坚守街头唱遍民间疾苦。"],
-      ["冬子", "武汉", "湖北", 1998, "POSTROCK", "楚天民谣", "面朝大海", "声音纯净空灵的江城游子。"],
-      ["白水", "宜宾", "四川", 2005, "POSTROCK", "蜀地氛围新古典/后摇", "时间", "将蜀地山水融入实验声学的隐士。"],
-      ["莫染", "桂林", "广西", 2008, "POSTROCK", "山水民谣", "春生", "漓江边长出的安静音符。"],
-      ["宋雨哲", "长春", "吉林", 1998, "POSTROCK", "木推瓜主唱/世界音乐", "断鸿声里", "横跨朋克与前卫世界音乐的奇才。"],
-      ["张过年", "淮安", "江苏", 2007, "POSTROCK", "治愈民谣", "一直在路上", "质朴宽广的温暖陪伴。"],
-      ["蒋明", "南宁", "广西", 2011, "POSTROCK", "空山民谣", "挽歌", "文人风骨入歌的古朴沉思。"],
-      ["幸福北路", "西安", "陕西", 2012, "POSTROCK", "古城民谣摇滚", "北郊", "古城北郊老厂区里的时代变迁。"],
-      ["守麦", "郑州", "河南", 2008, "POSTROCK", "中原土地民谣", "麦田", "守护黄河平原金黄麦浪的声音。"],
-      ["小娟&山谷里的居民", "北京", "北京", 1998, "POSTROCK", "原声不插电民谣", "红布绿花朵", "山谷微风般纯净清新的天籁合声。"],
-      ["林生祥&交工乐队", "高雄", "台湾", 1999, "POSTROCK", "客家美浓劳工摇滚", "菊花夜行军", "美浓反水库与客家唢呐电吉他的震撼史诗。"],
-      ["生祥乐队", "高雄", "台湾", 2013, "POSTROCK", "传统月琴与现代电声", "围庄", "聚焦石化工业污染的双唱片文学巨著。"],
-      ["胡德夫", "花莲", "台湾", 1970, "POSTROCK", "原住民民谣摇滚之父", "太平洋的风", "台湾民歌运动之父，厚重苍茫的海洋之魂。"],
-      ["陈建年", "台东", "台湾", 1999, "POSTROCK", "海洋民谣摇滚", "海洋", "角头音乐金曲歌王，纯正的原野海风。"],
-      ["张震岳", "宜兰", "台湾", 1993, "POSTROCK", "流行摇滚/滑板少年", "爱我别走", "纵贯线成员，横扫华语乐坛的痞帅摇滚才子。"],
-      ["陈粒", "贵阳", "贵州", 2014, "POSTROCK", "奇幻独立流行/摇滚", "奇妙能力歌", "野蛮生长、江湖气十足的独立女声奇迹。"],
-      ["好乐队", "北京", "北京", 2008, "PUNK", "车库摇滚", "好朋友", "地下糙砺派对。"],
-      ["腰乐队", "昭通", "云南", 1998, "POSTROCK", "另类文学摇滚/地下独立", "一个短篇", "“我们为之自豪的，不过是些陈旧的叹息。”华语独立乐文学孤峰。"],
-      ["寸铁", "昭通", "云南", 2017, "POSTROCK", "腰乐队延续/诗意独立", "目击你刚刚完成的倒地", "刘弢笔下冷酷而慈悲的当代挽歌。"],
-      ["顶楼的马戏团", "上海", "上海", 2001, "PUNK", "上海话弄堂朋克/荒诞前卫", "朋克都是娘娘腔", "陆晨领衔，极具市井烟火气与辛辣讽刺的真正海派传奇。"],
-      ["冷酷仙境", "上海", "上海", 2001, "POSTROCK", "前卫摇滚/民乐交响", "地平线", "林笛掌舵，大提琴、琵琶与电声摇滚的宏大叙事。"],
-      ["戈多", "北京", "北京", 2002, "POSTROCK", "器乐后摇先驱", "等待戈多", "中国最早探索器乐后摇声学的拓荒者之一。"],
-      ["水晶蝶", "上海", "上海", 1998, "POSTROCK", "英伦摇滚/另类流行", "蝶变", "申城老牌英式吉他乐团。"],
-      ["甜蜜的孩子", "杭州", "浙江", 1998, "POSTROCK", "英伦另类摇滚", "水手", "西湖边的浪漫英式旋律。"],
-      ["兰亭", "北京", "北京", 2009, "POSTROCK", "独立流行/Shoegaze", "花开", "柔美自赏吉他音浪。"],
-      ["蓝色花园", "上海", "上海", 2000, "POSTROCK", "另类摇滚", "花园", "海派老牌另类吉他声响。"],
-      ["惊弓之鸟", "天津", "天津", 2006, "POSTROCK", "硬摇滚", "破晓", "津门硬朗吉他。"],
-      ["像素棱镜", "深圳", "广东", 2016, "POSTROCK", "合成器浪潮/数学摇滚", "赛博矩阵", "特区钢铁森林中的数字梦境。"],
-      ["Mandarin", "上海", "上海", 2019, "POSTROCK", "电子摇滚/前卫流行", "ASAP", "顶级器乐演奏家碰撞出的先锋电气声场。"],
-      ["固体李边", "北京", "北京", 2017, "PUNK", "无浪潮/实验车库", "边界", "粗糙突兀的吉他音色。"],
-      ["和平和浪", "上海", "上海", 2015, "POSTROCK", "都市放克摇滚 (City Funk)", "安福路", "西装革履下的生猛放克律动与市井惬意。"],
-      ["扩音器", "北京", "北京", 2004, "PUNK", "硬核朋克", "喧嚣", "刺耳失真与咆哮。"],
-      ["谷水车间", "上海", "上海", 2014, "POSTROCK", "迷幻另类/冷波", "初仙", "迷离迷幻的女声与奇幻吉他音景。"],
-      ["鸭打鹅", "上海", "上海", 2009, "POSTROCK", "数学摇滚/电子前卫", "未来城市", "极具未来感与精密结构的数字摇滚探路者。"],
-      ["上海秋天", "上海", "上海", 2017, "POSTROCK", "数学摇滚/Emo", "新世界", "多国乐手交融的奔放节奏与器乐对话。"],
-      ["棱镜", "成都", "四川", 2015, "POSTROCK", "独立流行/氛围摇滚", "总有一天你会出现在我身边", "成都走出的浪漫旋律，治愈无数年轻人。"],
-      ["霓虹花园", "重庆", "重庆", 2017, "POSTROCK", "独立摇滚/情绪爆发", "无人的海边", "年轻荷尔蒙的极致宣泄，现场爆破般的感染力。"],
-      ["夏日入侵企画", "北京", "北京", 2014, "POSTROCK", "独立流行摇滚", "想去海边", "满载热血与浪漫夏日气息的青春金曲。"],
-      ["白日密语", "成都", "四川", 2017, "POSTROCK", "英伦车库/独立流行", "小宇宙", "少年心气与跳跃律动。"],
-      ["柏林护士", "上海", "上海", 2018, "POSTROCK", "后朋克/车库摇滚", "Here Comes The City", "硬朗干脆的后朋克节拍，现场极其锋利。"],
-      ["岛屿心情", "西安", "陕西", 2007, "POSTROCK", "英式独立摇滚", "纷飞", "古城老牌英式吉他天团，席卷大江南北。"],
-      ["南无", "北京", "北京", 2007, "POSTROCK", "平民摇滚/中式戏谑", "春来了", "接地气的平民幽默与民乐摇滚。"],
-      ["黑薄荷", "北京", "北京", 2012, "POSTROCK", "纯正硬摇滚/布鲁斯", "初夏", "老派硬摇滚的纯正吉他Riff与沙哑嗓音。"],
-      ["Elenore埃莉诺", "北京", "北京", 2010, "POSTROCK", "英伦另类摇滚", "波尔多", "高贵典雅的英式吉他音色。"],
-      ["杭天", "北京", "北京", 1998, "POSTROCK", "中国布鲁斯摇滚先驱", "比比爸爸", "将纯正密西西比蓝调嫁接中国现实的大师。"],
-      ["铁风筝", "南昌", "江西", 1993, "POSTROCK", "Grunge/另类摇滚先锋", "这个夏天", "虞洋领军，90年代中国摇滚黄金时代代表作。"],
-      ["瘦人", "北京", "北京", 1993, "METAL", "硬摇滚/重金属", "北京梦", "戴秦领衔，热血昂扬的金属舞台霸主。"],
-      ["天堂", "北京", "北京", 1992, "POSTROCK", "流行硬摇滚", "赵家老哥", "老牌硬摇滚劲旅，写尽京城草根百姓心声。"],
-      ["面孔", "北京", "北京", 1989, "METAL", "流行金属/硬摇滚传奇", "给我一点爱", "90年代华丽流行金属风靡全国，经久不衰。"],
-      ["超载", "北京", "北京", 1991, "METAL", "激流金属 (Thrash Metal)", "祖先的阴影", "高旗与李延亮领衔，中国第一支速度激流金属先锋。"],
-      ["高旗&超载", "北京", "北京", 1996, "POSTROCK", "硬摇滚/前卫流行", "不要告别", "金属铁汉化作极致深情的华语摇滚金曲。"],
-      ["鲍家街43号", "北京", "北京", 1993, "POSTROCK", "学院派布鲁斯摇滚", "晚安北京", "中央音乐学院高材生笔下的都市漂泊与精神叩问。"],
-      ["轮回", "北京", "北京", 1991, "POSTROCK", "东方硬摇滚", "烽火扬州路", "辛弃疾宋词与硬摇滚电吉他的绝妙嫁接。"],
-      ["Again", "北京", "北京", 1992, "POSTROCK", "轮回前身硬摇滚", "传说", "早期中国摇滚黄金一代重型声响。"],
-      ["指南针", "成都", "四川", 1991, "POSTROCK", "流行摇滚先驱", "随心所欲", "罗琦无与伦比的撕裂高亢铁肺，华语摇滚殿堂级之声。"],
-      ["呼吸", "北京", "北京", 1989, "POSTROCK", "硬摇滚开山之一", "每一次流行", "中国最早成立的硬摇滚乐队之一。"],
-      ["眼镜蛇", "北京", "北京", 1989, "POSTROCK", "中国第一支全女子摇滚乐队", "自己的天堂", "巾帼不让须眉，中国女性摇滚历史丰碑。"],
-      ["1989", "北京", "北京", 1989, "POSTROCK", "老牌流行硬摇滚", "再见十九岁", "臧天朔领衔的早期摇滚中坚。"],
-      ["红色部队", "北京", "北京", 1990, "PUNK", "早期地下朋克萌芽", "累", "陈劲掌舵，90年代摇滚中国火传奇单曲。"],
-      ["做梦", "北京", "北京", 1990, "POSTROCK", "哥特摇滚/新浪潮先锋", "希望之光", "窦唯离开黑豹后组建的先锋哥特乐队。"],
-      ["自我教育", "北京", "北京", 1991, "POSTROCK", "另类先锋", "沉思", "早期前卫摇滚地下探索。"],
-      ["新谛", "北京", "北京", 1991, "POSTROCK", "硬摇滚", "路途", "90年代地下摇滚合集里的老将。"],
-      ["穴位", "北京", "北京", 1992, "POSTROCK", "后朋克/前卫另类", "痛苦", "充满戏剧性张力与神经质的先锋乐队。"],
-      ["粉雾", "北京", "北京", 1991, "POSTROCK", "前卫流行摇滚", "幻境", "早期摇滚乐手跨界结晶。"],
-      ["佤族乐队", "昆明", "云南", 1992, "POSTROCK", "少数民族摇滚先驱", "阿佤摇滚", "阿佤山少数民族乐器与电吉他的早期融合。"],
-      ["苍狼", "呼和浩特", "内蒙古", 1993, "POSTROCK", "草原摇滚", "成吉思汗的传说", "腾格尔领衔，将草原长调注入现代摇滚。"],
-      ["石头", "郑州", "河南", 1993, "POSTROCK", "硬摇滚", "石头生花", "中原大地早期的硬派坚石。"],
-      ["自觉", "北京", "北京", 1992, "POSTROCK", "艺术摇滚", "醒悟", "地下思考者的电声长篇。"],
-      ["红桃五", "北京", "北京", 1993, "POSTROCK", "另类流行", "游戏", "早期摇滚合辑常客。"],
-      ["不倒翁", "北京", "北京", 1983, "POSTROCK", "中国最早摇滚乐队之一", "大地", "丁武、王迪、臧天朔年轻时代的拓荒摇篮。"],
-      ["七合板", "北京", "北京", 1984, "POSTROCK", "崔健早期乐队", "不是我不明白", "崔健与北京歌舞团同事开创历史的摇篮。"],
-      ["ADO", "北京", "北京", 1986, "POSTROCK", "崔健御用传奇乐手班底", "假行僧", "布鲁斯与放克乐手构建的划时代声场。"],
-      ["五月天（大陆早期同名乐队）", "北京", "北京", 1989, "POSTROCK", "早期摇滚先锋", "海", "何勇、张楚早期乐手共同合作的传奇同名乐队。"],
-      ["DaDaDa", "北京", "北京", 1990, "PUNK", "车库新浪潮", "快节奏", "老北京外国留学生与本土先锋碰撞之声。"],
-      ["白天使", "北京", "北京", 1989, "POSTROCK", "流行硬摇滚", "过去与现在", "程进、刘君利领衔的早期实力阵容。"],
-      ["宝贝兄弟", "北京", "北京", 1988, "POSTROCK", "老牌布鲁斯摇滚", "布鲁斯摇滚", "早期涉足布鲁斯与雷鬼的乐手组合。"],
-      ["萤火虫", "北京", "北京", 1987, "POSTROCK", "流行硬摇滚", "微光", "80年代摇滚潮中的青年力量。"],
-      ["清醒", "北京", "北京", 1988, "POSTROCK", "英伦摇滚/摩登天空开山", "好极了！？", "沈黎晖掌舵，开启中国独立音乐商业厂牌时代。"],
-      ["唐朝", "北京", "北京", 1988, "METAL", "东方艺术金属/重金属", "梦回唐朝", "94红磡神话，重金属音墙交织盛唐豪气与侠骨柔肠。"],
-      ["黑豹", "北京", "北京", 1987, "POSTROCK", "经典流行硬摇滚", "无地自容", "传唱度最高的中国经典摇滚，窦唯时期的巅峰之作。"],
-      ["零点", "呼和浩特", "内蒙古", 1989, "POSTROCK", "硬摇滚/流行摇滚", "爱不爱我", "走出呼和浩特的早期主流硬摇滚传奇。"],
-      ["Beyond", "香港", "香港", 1983, "POSTROCK", "硬摇滚/艺术摇滚/流行摇滚", "海阔天空", "黄家驹将摇滚乐刻成了几代华人不可磨灭的精神烙印。"],
-      ["崔健", "北京", "北京", 1986, "POSTROCK", "中国摇滚奠基/根源摇滚", "一无所有", "一把小号劈开时代坚冰，华语摇滚永恒的领航巨碑。"],
-      ["窦唯", "北京", "北京", 1988, "POSTROCK", "魔岩三杰/先锋实验", "高级动物", "从黑豹主唱到超凡脱俗的声学大师，中国摇滚的无上仙骨。"],
-      ["何勇", "北京", "北京", 1990, "PUNK", "魔岩三杰/胡同朋克先驱", "钟鼓楼", "红磡上跃动的红领巾，麒麟怒吼，胡同青年的纯真与愤怒。"],
-      ["张楚", "西安", "陕西", 1991, "POSTROCK", "魔岩三杰/诗性摇滚", "姐姐", "从西安走出的摇滚诗人，一颗孤傲流淌的纯真灵魂。"],
-      ["许巍", "西安", "陕西", 1990, "POSTROCK", "飞乐队先驱/人文摇滚", "两天", "古城西安孕育出的旋律巨匠，漂泊游子永恒的精神归宿。"],
-      ["郑钧", "西安", "陕西", 1990, "POSTROCK", "硬摇滚/流行摇滚", "赤裸裸", "长安才子的不羁呐喊，华语流行硬摇滚的时代金曲。"],
-      ["汪峰", "北京", "北京", 1994, "POSTROCK", "流行摇滚/人文叙事", "怒放的生命", "华语摇滚传唱度极广的时代巨匠。"],
-      ["谢天笑", "淄博", "山东", 1994, "POSTROCK", "Grunge/古筝雷鬼中国摇滚新教父", "向阳花", "暴烈的垃圾摇滚吉他配上古筝扫弦，万人膜拜的现场之王。"],
-      ["冷血动物", "淄博", "山东", 1997, "POSTROCK", "Grunge/三人硬核车库", "永远是个秘密", "谢天笑三人编制时期的生猛粗暴神作。"],
-      ["左小祖咒", "盐城", "江苏", 1993, "POSTROCK", "前卫实验/北京东村鼻祖", "我不能悲伤地坐在你身旁", "华语摇滚最具破坏力与争议性的无冕狂人。"],
-      ["苍蝇", "北京", "北京", 1993, "PUNK", "肮脏无浪潮/垃圾朋克", "涅槃", "丰江舟领衔，刺耳噪音与恶毒戏谑的地下经典。"],
-      ["超级市场", "北京", "北京", 1997, "POSTROCK", "电子流行摇滚先驱", "模样", "羽伞掌舵，中国第一支真正意义上的合成器电子乐队。"],
-      ["便利商店", "北京", "北京", 2001, "POSTROCK", "英式独立摇滚", "出发", "千禧年摩登天空旗下最纯正温和的英伦吉他。"],
-      ["冰淇淋格子", "上海", "上海", 2002, "POSTROCK", "自赏后摇", "融化", "海派湿润吉他。"],
-      ["病医生", "北京", "北京", 2000, "POSTROCK", "冷酷实验摇滚", "处方", "粗糙神经质音效。"],
-      ["陈底里", "北京", "北京", 1995, "POSTROCK", "前卫世界音乐摇滚", "梦游", "先锋音乐人。"],
-      ["晨辉", "北京", "北京", 1994, "POSTROCK", "硬摇滚", "解脱", "90年代实力摇滚男声。"],
-      ["陈劲", "北京", "北京", 1991, "POSTROCK", "根源摇滚", "烽火", "老牌贝斯手与创作老将。"],
-      ["吹波糖", "广州", "广东", 2006, "POSTROCK", "粤语流行朋克/另类", "青春无悔", "本土极具号召力的粤语摇滚代表。"],
-      ["春秋", "北京", "北京", 2000, "METAL", "重金属/民乐金属", "天下", "寇征宇与杨猛操刀，豪气干云的重金属长啸。"],
-      ["陈尸", "长春", "吉林", 2002, "METAL", "残酷死亡金属", "血肉横飞", "东北老牌凶狠死金。"],
-      ["重塑雕像的权利", "北京", "北京", 2003, "POSTROCK", "后朋克/纯粹逻辑/极简冷波", "PIGS IN THE RIVER", "严密冰冷的器乐控制力，走向世界的先锋后朋。"],
-      ["CMCB", "北京", "北京", 2000, "PUNK", "说唱摇滚/硬核说唱", "114", "中国地下说唱摇滚开山鼻祖。"],
-      ["蝉", "台北", "台湾", 2009, "POSTROCK", "新古典室内乐/器乐后摇", "漫长的走廊", "大提琴与木吉他交织的台东山水诗。"],
-      ["DimNova", "成都", "四川", 2018, "POSTROCK", "独立自赏", "Nova", "梦幻吉他回授。"],
-      ["DeadJ", "北京", "北京", 2003, "POSTROCK", "极简电子实验", "错乱", "电子声学大师李化迪。"],
-      ["第二层皮", "南京", "江苏", 2002, "PUNK", "车库硬核", "蜕壳", "江东地下的躁动。"],
-      ["丁薇", "南京", "江苏", 1994, "POSTROCK", "艺术流行/前卫摇滚", "女孩儿与四重奏", "古典与另类前卫摇滚的极致造诣。"],
-      ["DJQ9", "广州", "广东", 2005, "POSTROCK", "电子声场", "九号", "华南电子先锋。"],
-      ["耳光", "保定", "河北", 1998, "POSTROCK", "相声讽刺摇滚/民间二人转", "相声摇滚", "赵荒唐手中直戳痛处的讽刺利剑，草根的辛辣狂笑。"],
-      ["方科与妖", "长沙", "湖南", 1998, "POSTROCK", "楚越民谣摇滚", "妖境", "神话色彩的湘楚先锋。"],
-      ["凡言", "北京", "北京", 2001, "POSTROCK", "暗黑实验", "低语", "地下沉思录。"],
-      ["废墟", "北京", "北京", 1999, "POSTROCK", "迷幻另类摇滚", "像叶子一样飞", "周云山领衔，诗意迷离的中国迷幻先锋。"],
-      ["丰江舟", "舟山", "浙江", 1994, "PUNK", "工业噪音/前卫艺术", "恋爱中的气味", "苍蝇乐队主脑，跨界多媒体先锋领航者。"],
-      ["FM3", "北京", "北京", 1999, "POSTROCK", "唱佛机先锋电子", "唱佛机实况", "发明唱佛机扬名国际声学界。"],
-      ["非鱼", "合肥", "安徽", 1999, "POSTROCK", "英式旋律摇滚", "我是赞成你的", "千禧年红极一时的校园摇滚旋律。"],
-      ["功夫", "北京", "北京", 2001, "POSTROCK", "说唱摇滚/硬核放克", "日落", "早期流行说唱摇滚。"],
-      ["果味VC", "北京", "北京", 2001, "POSTROCK", "英伦流行摇滚", "双重合唱", "华丽时尚的英式吉他天团。"],
-      ["黄梁公主", "北京", "北京", 2003, "POSTROCK", "暗黑迷幻", "梦蝶", "幽暗空间里的吉他延音。"],
-      ["骅梓", "北京", "北京", 1989, "POSTROCK", "自我教育主脑", "不要匆忙", "老一辈纯粹摇滚唱作人。"],
-      ["胡吗个", "个旧", "云南", 1998, "POSTROCK", "低传真Lo-Fi实验民谣", "人人都有个小本本", "极其怪诞荒诞的原生态喃喃自语。"],
-      ["昏热症", "重庆", "重庆", 2016, "POSTROCK", "器乐后摇", "眩晕", "山城雾气中的大混响。"],
-      ["虎子", "北京", "北京", 1998, "POSTROCK", "电子摇滚跨界", "漫游", "病医生到电子乐先驱。"],
-      ["iLoo", "深圳", "广东", 2012, "POSTROCK", "独立流行", "环路", "特区微光。"],
-      ["ISUM", "上海", "上海", 2015, "POSTROCK", "数学摇滚", "矩阵", "精密拍子错位。"],
-      ["IZ", "乌鲁木齐", "新疆", 2000, "POSTROCK", "先锋工业摇滚/哈萨克实验民族", "影子", "冬不拉与重型工业噪音的极致通灵，享誉全球的先锋大师。"],
-      ["简希声", "成都", "四川", 2017, "POSTROCK", "器乐后摇", "素声", "唯美织体。"],
-      ["Miss Woman", "武汉", "湖北", 2008, "PUNK", "女子车库", "少女心事", "江城地下燥热。"],
-      ["野岸刊", "大连", "辽宁", 2018, "POSTROCK", "后摇滚", "潮汐", "海浪拍击防波堤。"],
-      ["文雀", "北京", "北京", 2008, "POSTROCK", "京派器乐后摇", "大雁", "京派器乐后摇代表，灵动而富有东方画意。"],
-      ["惘闻", "大连", "辽宁", 1999, "POSTROCK", "器乐后摇滚巅峰", "岁月鸿沟", "中国后摇天花板！用磅礴海潮般的器乐音墙征服世界。"],
-      ["沼泽", "广州", "广东", 1998, "POSTROCK", "古琴器乐后摇/前卫摇滚", "沧浪星", "古琴通电延音与后摇音墙独步天下，全球巡演载誉无数。"],
-      ["花伦", "武汉", "湖北", 2004, "POSTROCK", "电影级器乐后摇/声景", "大象席地而坐 配乐", "从早期粗砺吉他噪音，蜕变为克制悲悯的电影级后摇巨匠。"],
-      ["发光曲线", "北京", "北京", 2011, "POSTROCK", "数学摇滚/电子自赏", "银盐之舟", "繁复精密的时值变换与诗意声学。"],
-      ["逆耳", "上海", "上海", 2008, "POSTROCK", "器乐后摇", "深潜", "申城老牌后摇乐团。"],
-      ["16层", "北京", "北京", 2013, "POSTROCK", "器乐后摇/数学摇滚", "云层之上", "通透开阔的高空音墙。"],
-      ["花西", "杭州", "浙江", 2015, "POSTROCK", "后摇滚", "西湖冷雨", "江南水汽氤氲。"],
-      ["酸性事件", "北京", "北京", 2012, "POSTROCK", "器乐后摇", "重返日常", "低调扎实的器乐力量。"],
-      ["气象限定", "福州", "福建", 2016, "POSTROCK", "情绪后摇", "季风", "海峡对岸的阴雨。"],
-      ["北平雨燕", "北京", "北京", 2018, "POSTROCK", "自赏后摇", "城楼", "划破古都长空的吉他琶音。"],
-      ["泥塑上帝", "成都", "四川", 2015, "POSTROCK", "自赏黑金/后黑", "灰烬", "绝望而唯美的音墙。"],
-      ["心情贩卖机", "昆明", "云南", 2017, "POSTROCK", "独立自赏", "贩卖日光", "高原阳光。"],
-      ["语君子兰", "长春", "吉林", 2016, "POSTROCK", "器乐后摇", "雪化了", "寒冬里的温润。"],
-      ["Macondø", "北京", "北京", 2014, "POSTROCK", "数学器乐摇滚/前卫", "火山", "暴烈凶猛的高速点弦与失真风暴。"],
-      ["Before the Sunrise", "大连", "辽宁", 2015, "POSTROCK", "后摇滚", "黎明之前", "海平线尽头的微光。"],
-      ["出海部", "青岛", "山东", 2017, "POSTROCK", "冲浪自赏", "起航", "青岛啤酒与咸涩海雾。"],
-      ["寂寞夏日", "北京", "北京", 1996, "POSTROCK", "艺术另类摇滚", "追逐", "90年代地下老牌先驱。"],
-      ["碎叠", "石家庄", "河北", 2014, "POSTROCK", "器乐后摇", "废弃电厂", "工业衰退时期的器乐挽歌。"],
-      ["留白", "西安", "陕西", 2016, "POSTROCK", "器乐后摇", "终南山", "古琴与吉他回授。"],
-      ["仙昙", "广州", "广东", 2017, "POSTROCK", "东方后摇", "一瞬", "南国花开。"],
-      ["By Dream白日梦", "北京", "北京", 2013, "POSTROCK", "器乐后摇", "梦境", "干净宏大的叙事音墙。"],
-      ["安尼西亚", "西安", "陕西", 2015, "POSTROCK", "后朋克/迷幻", "黑洞", "古城地下回声。"],
-      ["Fayzz", "成都", "四川", 2015, "POSTROCK", "数学摇滚/Chillhop", "放松", "灵动松弛的吉他切分。"],
-      ["甜梅号", "台北", "台湾", 1998, "POSTROCK", "器乐后摇先驱", "三分之一摇篮曲", "台湾后摇开山鼻祖，波澜壮阔的吉他延音海浪。"],
-      ["声子虫", "台南", "台湾", 2008, "POSTROCK", "器乐后摇", "津梅栈桥", "狂暴破音与细腻叙事交错的器乐巨制。"],
-      ["阿飞西雅", "台北", "台湾", 2007, "POSTROCK", "器乐后摇", "下海", "小白兔唱片旗下的坚实器乐。"],
-      ["selfkill", "台北", "台湾", 2002, "POSTROCK", "器乐后摇/情绪摇滚", "公路白", "曾入围金曲奖的台式后摇代表。"],
-      ["晨曦光廊", "台南", "台湾", 2008, "POSTROCK", "情绪后摇/疗愈系", "风中的树", "台南温润阳光与泪水交融的感人后摇。"],
-      ["橙草", "台北", "台湾", 2004, "POSTROCK", "三人编制另类独立摇滚", "乌鸦", "克利峰的吉他音色令人过耳难忘。"],
-      ["草地人", "高雄", "台湾", 2010, "PUNK", "流行朋克", "青春大乱斗", "南台湾烈日下的欢快暴走。"],
-      ["昆蟲白", "台北", "台湾", 2011, "POSTROCK", "自赏吉他/后摇", "自然人", "甜梅号主创的个人声学项目。"],
-      ["八厘米天空", "台北", "台湾", 2002, "POSTROCK", "情绪摇滚/Math Emo", "废墟", "精湛吉他双重奏。"],
-      ["阿勇与他的朋友们", "台东", "台湾", 2015, "POSTROCK", "海洋民谣摇滚", "海风", "原住民山海弹唱。"],
-      ["漂浮者", "厦门", "福建", 2014, "POSTROCK", "自赏后摇", "浮木", "海风与吉他延音。"],
-      ["马赛克", "成都", "四川", 2008, "POSTROCK", "复古迪斯科摇滚", "霓虹甜心", "充满暧昧与浪漫的80年代合成器迪斯科派对。"],
-      ["海龟先生", "成都", "四川", 2004, "POSTROCK", "复古雷鬼/Ska/独立摇滚", "男孩别哭", "摇摆舞步下的灵性叩问与轻盈海风韵律。"],
-      ["旅行团", "北京", "北京", 2005, "POSTROCK", "独立流行/英伦摇滚", "逝去的歌", "柳州少年进京，写下无数温暖明媚的青春旋律。"],
-      ["达达", "武汉", "湖北", 1996, "POSTROCK", "英伦摇滚/南方独立流行", "南方", "“时间改变了许多事情，却改变不了我这颗南方的心。”"],
-      ["嘎调", "北京", "北京", 2006, "POSTROCK", "另类独立摇滚", "圈", "詹盼撕心裂肺的吼叫与凶猛吉他。"],
-      ["赌鬼", "北京", "北京", 2004, "PUNK", "车库朋克/独立摇滚", "童年", "王梓手中灵气四溢的吉他Riff。"],
-      ["怪人房间", "大连", "辽宁", 2015, "POSTROCK", "后摇滚", "封闭", "老式住宅楼里的器乐。"],
-      ["法兹", "西安", "陕西", 2010, "POSTROCK", "后朋克/Krautrock律动", "隼", "精密发条般的凶猛鼓点与冷冽吉他，新一代后朋克领军巨擘。"],
-      ["夸克", "西安", "陕西", 2011, "PUNK", "独立朋克/车库复兴", "小城故事", "纯粹生猛的年轻荷尔蒙，现场Pogo发动机。"],
-      ["琥珀", "西安", "陕西", 2010, "POSTROCK", "器乐后摇", "宿醉之星", "静谧深沉如夜色般的器乐后摇乐章。"],
-      ["鱼市", "西安", "陕西", 2014, "POSTROCK", "独立流行", "水生", "古城街头的年轻旋律。"],
-      ["未卜", "西安", "陕西", 2007, "POSTROCK", "英伦摇滚", "未来", "老牌古城英式吉他。"],
-      ["海瞳", "大连", "辽宁", 2013, "POSTROCK", "后摇滚", "瞳孔", "大海的回声。"],
-      ["锂瑟姆", "兰州", "甘肃", 2014, "METAL", "工业重金属", "重核", "黄河水畔的重工业音爆。"],
-      ["顶级秘密", "北京", "北京", 2005, "POSTROCK", "另类摇滚", "密码", "地下先驱合作项目。"],
-      ["死因池", "西安", "陕西", 2006, "METAL", "旋律死亡金属", "沉沦之海", "西北极端金属代表，精湛的吉他SOLO与咆哮音墙。"],
-      ["王建房", "西安", "陕西", 1995, "POSTROCK", "秦腔融合根源摇滚", "长安夜", "如黄土高原长风般的沙哑嗓音，将秦腔吼声烙入电声。"],
-      ["利维坦", "西安", "陕西", 2015, "METAL", "死核 (Deathcore)", "深渊凝视", "狂暴Breakdown与碾压式的凶狠节奏。"],
-      ["跳山羊", "成都", "四川", 2014, "PUNK", "车库朋克", "奔跑", "川味十足的跳跃Pogo。"],
-      ["Lur", "西安", "陕西", 2011, "POSTROCK", "独立摇滚/后朋克/迷幻氛围", "海浪", "双人编制构建的冷峻潮湿声学奇迹，吉他回授与幽暗念白的深潜。"],
-      ["白百", "北京", "北京", 2018, "POSTROCK", "极简独立/自赏", "雨天", "清冷素雅的女声与低传真吉他。"],
-      ["树眼", "沈阳", "辽宁", 2014, "POSTROCK", "后摇滚", "年轮", "黑土地的静默观察。"],
-      ["TimeCrosser", "郑州", "河南", 2015, "METAL", "金属核", "穿越", "中原平原的凶悍重压。"],
-      ["海先生", "威海", "山东", 2016, "POSTROCK", "独立自赏", "海边", "灯塔与海鸥。"],
-      ["FINSO", "广州", "广东", 2014, "POSTROCK", "数学摇滚", "分寸", "岭南切弦。"],
-      ["完美假日", "青岛", "山东", 2017, "PUNK", "冲浪朋克", "假日", "海浪与啤酒沫中的狂欢。"],
-      ["乌骨山羊", "青岛", "山东", 2015, "POSTROCK", "自赏后朋", "山羊", "黑山白浪之间的低鸣。"],
-      ["逆行旅人", "长春", "吉林", 2015, "POSTROCK", "器乐后摇", "逆光", "雪原上的脚印。"],
-      ["七秒", "南京", "江苏", 2013, "POSTROCK", "独立流行", "记忆", "江南老街。"],
-      ["大儿童", "上海", "上海", 2015, "PUNK", "流行朋克", "玩具枪", "拒绝长大的少年。"],
-      ["精神粉碎", "武汉", "湖北", 2016, "METAL", "激流金属", "砸碎", "江汉平原的铁锤。"],
-      ["ATTMORE", "长沙", "湖南", 2017, "PUNK", "硬核硬摇", "烈火", "湘江热浪。"],
-      ["基诺", "南京", "江苏", 2004, "POSTROCK", "英伦摇滚/文学独立", "后生", "主唱谢欣的英式浪漫与书卷气息。"],
-      ["海皮威尔", "武汉", "湖北", 2015, "POSTROCK", "电气车库摇滚/楚风新浪潮", "铁马冰河", "楚风侠气与电气失真的绝妙交融。"],
-      ["Magic Guy", "成都", "四川", 2016, "POSTROCK", "放克摇滚", "魔力", "轻松摇摆。"],
-      ["绿豆赢", "北京", "北京", 2014, "PUNK", "无厘头朋克", "夏天", "市井欢笑。"],
-      ["冲浪即野心", "海口", "海南", 2020, "POSTROCK", "冲浪摇滚", "浪潮", "南海浪尖上的失真滑音。"],
-      ["寐有叁", "贵阳", "贵州", 2016, "POSTROCK", "山地自赏", "迷雾", "喀斯特岩洞声响。"],
-      ["DAPAB", "福州", "福建", 2016, "POSTROCK", "独立摇滚", "出发", "闽江口的新声。"],
-      ["触发器", "深圳", "广东", 2017, "POSTROCK", "电子后朋", "开关", "数字电路。"],
-      ["OverJaM", "南宁", "广西", 2015, "POSTROCK", "雷鬼放克", "果实", "热带雨林。"],
-      ["海沧石", "厦门", "福建", 2015, "POSTROCK", "后摇滚", "礁石", "浪潮击打礁石的延音。"],
-      ["文澜", "杭州", "浙江", 2016, "POSTROCK", "水乡后摇", "文澜阁", "古籍与吉他延音。"],
-      ["好瑞福", "北京", "北京", 2013, "PUNK", "车库摇滚", "快车", "粗颗粒扫弦。"],
-      ["TRAFFIC LIGHT", "天津", "天津", 2015, "PUNK", "流行朋克", "红绿灯", "街头快节奏。"],
-      ["脱水", "重庆", "重庆", 2016, "POSTROCK", "器乐后摇", "蒸发", "江雾散去。"],
-      ["野零叁柒", "合肥", "安徽", 2017, "POSTROCK", "独立民谣摇滚", "037", "江淮平原。"],
-      ["午时夜", "南京", "江苏", 2015, "POSTROCK", "后朋克", "午夜", "梧桐叶落。"],
-      ["电线团", "苏州", "江苏", 2015, "PUNK", "车库朋克", "纠缠", "水乡老弄堂里的躁动。"],
-      ["Silly Function", "无锡", "江苏", 2017, "POSTROCK", "数学摇滚", "函数", "精密的节拍游戏。"],
-      ["克林尼克", "上海", "上海", 2016, "POSTROCK", "冷波工业", "诊断", "手术室般的冰冷节拍。"],
-      ["Blind Company", "郑州", "河南", 2016, "PUNK", "街头朋克", "盲从", "中原铁路枢纽的怒吼。"],
-      ["盲目伙伴", "新乡", "河南", 1996, "PUNK", "中原硬核朋克拓荒者", "同路", "河南新乡摇滚之乡硬核血脉的见证者。"],
-      ["踹飞莱", "洛阳", "河南", 2017, "POSTROCK", "车库摇滚", "古都狂奔", "龙门石窟旁的电吉他。"],
-      ["猴子军团", "成都", "四川", 2009, "METAL", "Nu-Metal/饶舌金属", "Fighter", "现场极具爆发力的西南新金属代表。"],
-      ["唯利玉碎计划", "北京", "北京", 2017, "PUNK", "噪音朋克", "玉碎", "尖锐失真与破灭。"],
-      ["BAD SODA", "广州", "广东", 2016, "PUNK", "车库苏打", "气泡", "汽水爆裂。"],
-      ["婆婆丁", "哈尔滨", "黑龙江", 2015, "POSTROCK", "民谣摇滚", "蒲公英", "随风飘荡的北国歌谣。"],
-      ["自然保护区", "西宁", "青海", 2018, "POSTROCK", "高山后摇", "可可西里", "雪山与藏羚羊的远眺。"],
-      ["雾疗室", "重庆", "重庆", 2017, "POSTROCK", "自赏迷幻", "重雾", "防空洞里的潮湿回授。"],
-      ["ECHONICHE", "大连", "辽宁", 2016, "POSTROCK", "氛围后摇", "海蚀", "海蚀崖的回声。"],
-      ["破烂的街区", "长沙", "湖南", 2015, "PUNK", "硬核街头朋克", "街区", "老街拆迁废墟上的Pogo。"],
-      ["囍宴", "济南", "山东", 2017, "POSTROCK", "中式民俗摇滚", "唢呐响", "民间红白喜事里的轰鸣。"],
-      ["积木森林", "南昌", "江西", 2016, "POSTROCK", "器乐后摇", "搭积木", "江南山林的静谧。"],
-      ["牧童", "呼伦贝尔", "内蒙古", 2014, "POSTROCK", "游牧摇滚", "长风", "大草原深处的牧歌。"],
-      ["Enjoy the Night", "深圳", "广东", 2016, "POSTROCK", "夜色自赏", "夜行", "霓虹高楼。"],
-      ["Snooker", "上海", "上海", 2015, "PUNK", "车库摇滚", "撞球", "清脆碰撞。"],
-      ["Ark Riders", "北京", "北京", 2016, "METAL", "重金属", "方舟", "远航破浪。"],
-      ["夜明", "西安", "陕西", 2017, "POSTROCK", "器乐后摇", "城楼拂晓", "古城晨曦。"],
-      ["Freak Session", "成都", "四川", 2015, "POSTROCK", "自由即兴/噪音", "异态", "锦江边的实验。"],
-      ["WHOEVER", "西宁", "青海", 2016, "POSTROCK", "另类摇滚", "无名", "青海湖边的清冽吉他。"],
-      ["荒野四合月", "银川", "宁夏", 2017, "POSTROCK", "荒原后摇", "大漠月", "贺兰山下的月色。"],
-      ["隐基底", "太原", "山西", 2015, "POSTROCK", "器乐后摇", "泉源", "煤都老城中的清泉。"],
-      ["狮童", "成都", "四川", 2018, "POSTROCK", "独立流行/另类", "千里寻狮", "少年气与大合唱。"],
-      ["安娜其的故事", "武汉", "湖北", 2014, "PUNK", "无政府硬核", "旗帜", "江滩边的怒火。"],
-      ["浪旅", "青岛", "山东", 2018, "POSTROCK", "冲浪自赏", "风浪", "沙滩脚印。"],
-      ["鸟撞", "北京", "北京", 2009, "POSTROCK", "独立朋克/车库复兴", "恨我吧", "撞碎南墙的飞鸟，直率蓬勃的青春宣言。"],
-      ["莱维飞行", "杭州", "浙江", 2017, "POSTROCK", "数学摇滚", "飞行", "不规则运动。"],
-      ["阿沃卡多", "昆明", "云南", 2016, "POSTROCK", "独立流行", "牛油果", "春城阳光下的果实。"],
-      ["那山", "贵阳", "贵州", 2015, "POSTROCK", "山地后摇", "大山深处", "苗岭群山的回音。"],
-      ["沉默玩家", "沈阳", "辽宁", 2017, "POSTROCK", "后朋克", "牌局", "老工业长子的沉默坚守。"],
-      ["迷龙", "长春", "吉林", 2016, "METAL", "硬摇滚", "长白之风", "黑土地硬骨。"],
-      ["Hi Link Channel", "广州", "广东", 2016, "POSTROCK", "数学摇滚", "频道", "精密频宽。"],
-      ["因否", "长沙", "湖南", 2016, "POSTROCK", "器乐后摇", "因果", "湘水波澜。"],
-      ["A公馆", "北京", "北京", 2009, "POSTROCK", "放克舞曲摇滚", "放开那个女孩", "现场极具号召力的舞台精灵。"],
-      ["失浪潮", "大连", "辽宁", 2018, "POSTROCK", "盯鞋自赏", "失速", "大海退潮。"],
-      ["門图", "上海", "上海", 2015, "POSTROCK", "冷波后朋", "门外", "弄堂深锁。"],
-      ["赤褐色", "兰州", "甘肃", 2016, "POSTROCK", "黄土后摇", "丹霞", "粗粝红岩。"],
-      ["蛮蛮车", "重庆", "重庆", 2017, "PUNK", "车库方言朋克", "老火锅", "九宫格沸腾。"],
-      ["温莎森林", "北京", "北京", 2015, "POSTROCK", "英式独立", "你好小红", "温润典雅的英伦曲风。"],
-      ["Sleeping Dogs", "北京", "北京", 2016, "POSTROCK", "器乐车库", "睡狗", "粗糙自由。"],
-      ["Taiga", "呼和浩特", "内蒙古", 2014, "POSTROCK", "赛博萨满/游牧先锋", "黑骏马", "呼麦与合成器低频的通灵对话。"],
-      ["绝对纯洁", "上海", "上海", 2016, "POSTROCK", "后朋克/艺术摇滚", "绝对", "汤庭掌舵，充满危险迷人气质的申城声响。"],
-      ["The Sign Of Human", "石家庄", "河北", 2016, "POSTROCK", "数学摇滚", "迹象", "华北工业之音。"],
-      ["明天的盐", "台北", "台湾", 2015, "POSTROCK", "独立自赏", "海水咸", "海岛日常。"],
-      ["Sonicave", "成都", "四川", 2017, "POSTROCK", "后朋克/新浪潮", "洞穴", "冷峻机械节拍。"],
-      ["CopaK", "天津", "天津", 2016, "POSTROCK", "英伦车库", "码头", "海河风暴。"],
-      ["丢莱卡", "北京", "北京", 2017, "PUNK", "后朋克/街头文学朋克", "红色的脸", "涂飞璋笔下激扬的时代诗意与凶猛节奏。"],
-      ["Lonely Cookies", "武汉", "湖北", 2016, "PUNK", "流行朋克", "饼干", "江汉路热气。"],
-      ["芒果街老爸", "广州", "广东", 2015, "POSTROCK", "车库流行", "老爹", "骑楼漫步。"],
-      ["新学校废物合唱团", "鞍山", "辽宁", 2014, "PUNK", "流行朋克", "别傻了", "刘凹领衔，东北洗浴与老派朋克的爆笑热血。"],
-      ["八仙8Immortals", "北京", "北京", 2020, "POSTROCK", "独立摇滚/东方迷幻", "八仙过海", "海潮与八仙传说。"],
-      ["Riot in School", "南京", "江苏", 2014, "PUNK", "硬核朋克", "下课铃", "逃离教室。"],
-      ["野外合作社", "南京", "江苏", 2012, "POSTROCK", "诗歌摇滚/另类独立", "优美的", "文人风骨的当代转译，充满江南诗意与沉沦。"],
-      ["乌飞兔走昼还夜", "北京", "北京", 2013, "POSTROCK", "前卫艺术摇滚", "太阳照常升起", "繁复怪诞的编曲与中国传统文学意象。"],
-      ["茶凉粉", "北京", "北京", 2009, "POSTROCK", "独立流行/清新摇滚", "好姑娘", "明快清甜的城市小调。"],
-      ["丝绒公路", "北京", "北京", 2007, "POSTROCK", "硬摇滚/经典摇滚", "只为灿烂的瞬间", "纯正粗粝的哈雷机车硬摇滚风骨。"],
-      ["麻园诗人", "昆明", "云南", 2007, "POSTROCK", "Grunge/英式独立", "泸沽湖", "苦涩沙哑的云南湿润嘶吼，风靡全国的现场力量。"],
-      ["气运联盟", "北京", "北京", 2020, "POSTROCK", "流行摇滚", "气运", "年轻力量。"],
-      ["幸福大街", "北京", "北京", 1999, "POSTROCK", "另类先锋女声/哥特文学", "嫁衣", "吴虹飞笔下的荆棘与刺痛，中国另类女声孤峰。"],
-      ["子曰秋野", "北京", "北京", 1994, "POSTROCK", "京味戏曲曲艺摇滚", "瓷器", "将老北京相声、评书与摇滚融为一炉的国粹宗师。"],
-      ["麦田守望者", "北京", "北京", 1994, "POSTROCK", "英伦车库/绿色摇滚", "在路上", "萧玮领衔，纯真执着的理想主义旗帜。"],
-      ["星期三的旅行", "北京", "北京", 2001, "POSTROCK", "Trip-Hop/迷幻神游", "Secret", "吴卓玲掌舵，中国最早探索Trip-Hop的传奇天团。"],
-      ["虎子和病医生", "北京", "北京", 2000, "POSTROCK", "前卫电子噪音", "病历", "冰冷机械声场。"],
-      ["沙子", "北京", "北京", 1996, "POSTROCK", "布鲁斯硬摇滚", "怪模怪样", "刘冬虹浑厚性感的嗓音与玩世不恭的都市哲思。"],
-      ["混合胶囊", "上海", "上海", 2005, "POSTROCK", "另类流行", "胶囊", "都市梦境。"],
-      ["透视-X", "西安", "陕西", 2006, "METAL", "重金属", "透视", "防空洞排练室力量。"],
-      ["梵瑞与3", "昆明", "云南", 2007, "POSTROCK", "原生态摇滚", "大山", "高原泥土芬芳。"],
-      ["老张的乡村", "郑州", "河南", 2005, "POSTROCK", "乡村摇滚", "老家", "中原大地的泥土之音。"],
-      ["TOOKOO", "北京", "北京", 2000, "PUNK", "Emo-Core/情绪硬核鼻祖", "I Can't Forget", "中国情绪摇滚Emo开拓者。"],
-      ["海市蜃楼", "乌鲁木齐", "新疆", 2002, "POSTROCK", "西域摇滚", "大漠蜃景", "荒漠狂沙。"],
-      ["女儿红", "绍兴", "浙江", 2004, "POSTROCK", "水乡摇滚", "陈酿", "黄酒芬芳。"],
-      ["潜水艇", "大连", "辽宁", 2005, "PUNK", "车库朋克/另类摇滚", "北方港口", "带着海盐气息的暴躁冲浪朋克之声。"],
-      ["秋天的虫子", "北京", "北京", 1998, "POSTROCK", "哥特工业金属/黑暗波", "黑羽毛", "樱子空灵凄厉的黑夜挽歌。"],
-      ["死逗乐", "武汉", "湖北", 1998, "PUNK", "武汉老牌朋克", "小样", "鲁巷防空洞走出的硬核鼻祖之一。"],
-      ["髓", "北京", "北京", 2003, "METAL", "重金属", "脊髓", "沉重的低音重击。"],
-      ["水中", "杭州", "浙江", 2007, "POSTROCK", "自赏后摇", "水底", "西湖冷波。"],
-      ["什么", "南京", "江苏", 2004, "POSTROCK", "另类实验", "无题", "先锋试探。"],
-      ["液氧罐头", "北京", "北京", 2001, "METAL", "工业打击乐金属/新金属", "这一切为何发生", "张宇手持重锤敲击油桶的震撼现场。"],
-      ["战斧", "北京", "北京", 1992, "METAL", "残酷死亡激流金属先锋", "天葬", "牛子领衔，中国重金属历史上最凶狠老练的铁血战斧。"],
-      ["Panda Twin", "成都", "四川", 2011, "POSTROCK", "独立流行", "熊猫", "轻松闲适。"],
-      ["Another Idea", "深圳", "广东", 2013, "POSTROCK", "后摇滚", "灵感", "南方海风。"],
-      ["渡鸭", "北京", "北京", 2008, "POSTROCK", "冷波另类", "渡水", "黑羽划过。"],
-      ["The Verse", "北京", "北京", 1999, "POSTROCK", "放克灵魂乐 (Funk/Soul)", "放肆", "黄顽石领军的大编制管乐放克大团。"],
-      ["漆芒果", "厦门", "福建", 2006, "POSTROCK", "独立流行", "芒果香", "海岛日光。"],
-      ["The Believers", "天津", "天津", 2007, "POSTROCK", "英伦摇滚", "信徒", "九河下梢的清爽吉他。"],
-      ["Recycle", "北京", "北京", 2002, "PUNK", "旋律流行朋克", "再循环", "极富感染力的跳跃节奏。"],
-      ["Handsome Black", "沈阳", "辽宁", 2008, "METAL", "重金属", "黑铁", "工业硬派。"],
-      ["肉树", "石家庄", "河北", 2003, "POSTROCK", "另类摇滚", "树根", "华北工业腹地早期的独立声响。"],
-      ["波澜童话", "北京", "北京", 2005, "POSTROCK", "独立流行/车库", "童话", "跳跃灵动的青春叙事。"],
-      ["苏菲花园", "北京", "北京", 2005, "POSTROCK", "英伦独立摇滚", "苏菲", "浪漫典雅的旋律线条。"],
-      ["隐藏", "北京", "北京", 2000, "POSTROCK", "硬核说唱先驱", "在北京", "中国地下嘻哈黄金时代的奠基天团。"],
-      ["骆驼", "呼和浩特", "内蒙古", 2004, "POSTROCK", "草原摇滚", "戈壁舟", "大漠风沙中的沉稳步伐。"],
-      ["赤色玛雅", "天津", "天津", 2004, "METAL", "前卫重金属", "玛雅预言", "津门老牌重型力量。"],
-      ["龙门阵团体", "北京", "北京", 2003, "POSTROCK", "民间说唱摇滚", "龙门阵", "地道市井武侠说唱。"],
-      ["BONK", "上海", "上海", 2006, "PUNK", "车库朋克", "重击", "直接生猛的三和弦。"],
-      ["夸西莫多", "武汉", "湖北", 2005, "POSTROCK", "器乐后摇", "钟楼", "江城地下钟声。"],
-      ["Happy Rock", "广州", "广东", 2006, "PUNK", "流行朋克", "快乐", "南方艳阳。"],
-      ["混血", "北京", "北京", 2002, "POSTROCK", "另类摇滚", "融合", "多文化融合探索。"],
-      ["洋娃娃7号", "成都", "四川", 2004, "PUNK", "女子车库朋克", "洋娃娃", "火辣生猛的川妹子朋克。"],
-      ["声音与玩具", "成都", "四川", 1999, "POSTROCK", "艺术摇滚", "爱是昂贵的", "欧珈源写给时代的深邃情诗。"],
-      ["梵瑞与水", "大理", "云南", 2008, "POSTROCK", "雷鬼民谣", "苍山溪", "洱海波光。"],
-      ["黑戒", "西安", "陕西", 2007, "METAL", "黑金属", "黑指环", "古城极端黑金属先驱。"],
-      ["拯救茉莉", "武汉", "湖北", 2009, "PUNK", "情绪朋克", "茉莉", "江城荷尔蒙。"],
-      ["车裂", "太原", "山西", 2006, "METAL", "残酷死亡金属", "五马分尸", "三晋大地最为暴烈的极端金属。"],
-      ["猫踢狗", "哈尔滨", "黑龙江", 2005, "PUNK", "硬核朋克", "追逐", "冰城街头的暴怒狂飙。"],
-      ["永无宁日", "长沙", "湖南", 2008, "METAL", "金属核/残酷死核", "永无安宁", "湖南硬核金属代表，狂暴的现场音墙。"],
-      ["冥界", "北京", "北京", 1990, "METAL", "中国死亡金属第一旗帜", "瞬间燃烧", "中国死金拓荒者，双吉他极速Thrash与凶残喉音。"],
-      ["冰原狼", "长春", "吉林", 2010, "METAL", "维京金属/黑金属", "冰原长啸", "北境严冬的号角。"],
-      ["远端械斗", "广州", "广东", 2011, "PUNK", "硬核朋克", "械斗", "华南地下生猛冲撞。"],
-      ["但丁之舟", "贵阳", "贵州", 2004, "METAL", "力量金属/交响重金属", "最后的战役", "极具高亢美声与华丽吉他琶音的中国力量金属翘楚。"],
-      ["Be Persecuted", "南昌", "江西", 2005, "METAL", "抑郁黑金属 (DSBM) 巅峰", "I Shall Die Tomorrow", "绝望冰冷的吉他啸叫与泣血黑腔，享誉世界的DSBM传奇。"],
-      ["闪灵", "台北", "台湾", 1995, "METAL", "交响黑金属/东方极端金属", "暮沉武德殿", "二胡与重型黑腔交织，走向国际金属音乐节的极恶巨响。"],
-      ["幻日", "台北", "台湾", 2004, "METAL", "黑暗金属", "黑夜", "暗黑交响与高速双踩。"],
-      ["冰封十字", "大连", "辽宁", 2000, "METAL", "传统重金属/硬摇滚", "最后的十字", "老牌东北重金属纯粹力量。"],
-      ["六翼天使", "台北", "台湾", 2001, "METAL", "力量金属", "爱", "华丽力量吉他双重奏。"],
-      ["夜莺", "哈尔滨", "黑龙江", 2006, "METAL", "哥特金属", "夜鸣", "极寒之地的深沉歌声。"],
-      ["守夜者", "西安", "陕西", 2012, "METAL", "毁灭金属/末日金属", "守夜", "八百里秦川的厚重长音。"],
-      ["Skycrater", "北京", "北京", 2010, "METAL", "力量金属", "天坑", "疾速狂飙。"],
-      ["Empylver", "北京", "北京", 2004, "METAL", "中式黑金属/异教金属", "林间", "深山密林中的异教低语。"],
-      ["Why", "沈阳", "辽宁", 2003, "METAL", "新金属", "为什么", "工业大厂大院里的嘶吼。"],
-      ["Crusado Orchestra", "香港", "香港", 2007, "METAL", "交响黑金属", "远征", "九龙夜色下的恢弘音景。"],
-      ["beeline", "上海", "上海", 2012, "POSTROCK", "自赏后摇", "直线", "都市地铁穿梭。"],
-      ["声无哀乐", "南京", "江苏", 2014, "POSTROCK", "前卫古典摇滚", "乐记", "嵇康声无哀乐论的器乐当代演绎。"],
-      ["八仙饭店", "北京", "北京", 2020, "POSTROCK", "独立摇滚/迷幻东方", "吞吐", "东方神秘色彩与潮湿迷幻吉他的惊艳新浪潮。"],
-      ["梭哈", "广州", "广东", 2017, "PUNK", "车库朋克", "全押", "南方青年的不羁豪赌。"],
-      ["送春归", "滨州", "山东", 2017, "POSTROCK", "独立流行摇滚", "春风吹又生", "齐鲁大地的青春明媚长调。"],
-      ["海德薇", "成都", "四川", 2016, "POSTROCK", "后朋克", "夜枭", "穿梭在西南迷雾中的信使。"],
-      ["深水", "武汉", "湖北", 2018, "POSTROCK", "器乐后摇", "潜游", "长江深处的水声与吉他音墙。"],
-      ["海底时光机", "威海", "山东", 2017, "POSTROCK", "海岛独立流行/自赏", "在海边", "海角天涯的温暖吉他扫弦。"],
-      ["温室杂草", "台北", "台湾", 2019, "POSTROCK", "独立摇滚/City Pop", "在这个时代", "年轻一代台式浪漫的草根心声。"],
-      ["大音希声", "西安", "陕西", 2015, "POSTROCK", "器乐后摇", "无声", "终南山下的空灵大音。"],
-      ["草东没有派对", "台北", "台湾", 2012, "POSTROCK", "Grunge/另类独立摇滚", "山海", "“哭啊，喊啊，叫你妈妈带你去买玩具啊！”刺穿虚无时代。"],
-      ["落日飞车", "台北", "台湾", 2011, "POSTROCK", "City Pop/迷幻独立摇滚", "My Jinji", "复古萨克斯风与温暖合成器音浪，享誉国际的浪漫浪漫。"]
+    /********************************************************************
+     * 2. 历史地标与传奇现场图层数据库 (16处中国摇滚史丰碑坐标)
+     ********************************************************************/
+    const ROCK_LANDMARKS = [
+        { id: "LM01", name: "树村摇滚村 (历史聚落)", city: "北京", type: "乌托邦聚落", era: "1998-2004", coord: [116.2980, 40.0450], desc: "海淀区西北旺乡树村。舌头、木马、痛仰、夜叉、扭曲的机器、病蛹、废墟等数十支地下乐队曾在此租住简陋平房苦练，是中国地下摇滚最悲壮而滚烫的乌托邦。" },
+        { id: "LM02", name: "北京迷笛音乐学校", city: "北京", type: "摇滚黄埔军校", era: "1993-至今", coord: [116.2150, 40.0720], desc: "中国摇滚的黄埔军校，迷笛音乐节发源地，培养了数以千计的地下乐手、调音师与鼓手。" },
+        { id: "LM03", name: "D-22 俱乐部 (五道口遗址)", city: "北京", type: "传奇Livehouse", era: "2006-2012", coord: [116.3380, 39.9920], desc: "成府路242号。Carsick Cars、刺猬、后海大鲨鱼、嘎调、鸟撞等「No Beijing」新浪潮与噪音实验乐队的诞生圣殿。" },
+        { id: "LM04", name: "开心乐园 / 豪运酒吧 (旧址)", city: "北京", type: "朋克圣地", era: "1997-2008", coord: [116.3450, 39.9880], desc: "无聊军队（脑浊、反光镜、69、A-Boys）、诱导社、蜜三刀等中国第一代朋克乐队最狂野的汗水挥洒地。" },
+        { id: "LM05", name: "School 学校酒吧 (五道营)", city: "北京", type: "传奇Livehouse", era: "2010-至今", coord: [116.4160, 39.9480], desc: "五道营胡同53号，当代北京独立摇滚、朋克与无数年轻乐队的首演摇篮。" },
+        { id: "LM06", name: "武汉 VOX Livehouse (鲁磨路)", city: "武汉", type: "传奇Livehouse", era: "2005-至今", coord: [114.4020, 30.5180], desc: "光谷鲁磨路国光大厦。生命之饼SMZB、花伦、Chinese Football、AV大久保等武汉之声的绝对主场，「武汉制造」精神地标。" },
+        { id: "LM07", name: "武汉 Prison 监狱酒吧 (旧址)", city: "武汉", type: "朋克据点", era: "2000年代", coord: [114.3850, 30.5250], desc: "由SMZB主唱吴维创立的早期武汉地下朋克据点，见证了江城硬核朋克最生猛的岁月。" },
+        { id: "LM08", name: "上海 育音堂 (凯旋路老店)", city: "上海", type: "传奇Livehouse", era: "2004-至今", coord: [121.4160, 31.2090], desc: "长宁区凯旋路851号，上海地下摇滚与独立音乐不倒的守夜灯塔。" },
+        { id: "LM09", name: "成都 小酒馆 (芳沁店/玉林)", city: "成都", type: "传奇Livehouse", era: "1997-至今", coord: [104.0480, 30.6310], desc: "唐蕾创办，声音玩具、阿修罗、海朋森、马赛克等无数成都独立乐队的起点。" },
+        { id: "LM10", name: "广州 陶街 & 大沙头打口市场", city: "广州", type: "打口带圣地", era: "1990s-2000s", coord: [113.2610, 23.1240], desc: "中国摇滚乐迷的启蒙圣地，成吨的欧美打口磁带与CD从这里流向全国地下乐手的随身听。" },
+        { id: "LM11", name: "台北 The Wall 这墙音乐艺文展演空间", city: "台北", type: "传奇Livehouse", era: "2003-至今", coord: [121.5350, 25.0080], desc: "公馆罗斯福路地下室，见证了草东没有派对、落日飞车、甜梅号、伤心欲绝等台湾独立乐团的崛起。" },
+        { id: "LM12", name: "台北 女巫店 Witch House", city: "台北", type: "独立温床", era: "1996-至今", coord: [121.5330, 25.0180], desc: "台大温罗汀商圈的传奇独立音乐展演空间。" },
+        { id: "LM13", name: "香港 高山剧场 (红磡)", city: "香港", type: "历史现场", era: "1980s-至今", coord: [114.1850, 22.3130], desc: "1980年代香港地下乐队运动核心剧场，Beyond、太极、达明一派、黑鸟曾在此掀起摇滚风暴。" },
+        { id: "LM14", name: "新乡体育中心 (98摇滚音乐节旧址)", city: "新乡", type: "历史音乐节", era: "1998-1999", coord: [113.9320, 35.2980], desc: "崔健、唐朝、黑豹、超载、鲍家街43号齐聚中原，创下中国90年代摇滚演出史奇迹。" },
+        { id: "LM15", name: "西安 光圈 Club / 绿洲旧址", city: "西安", type: "地下据点", era: "2000s-至今", coord: [108.9480, 34.2580], desc: "滋养了法兹FAZI、岛屿心情、Lur:、The Noname等西北地下力量的现场温床。" },
+        { id: "LM16", name: "兰州 葵 Livehouse / 河酒吧", city: "兰州", type: "西北据点", era: "1999-至今", coord: [103.8250, 36.0650], desc: "野孩子创办「河酒吧」至「葵」，黄河岸边的西北民谣与地下摇滚精神据点。" }
     ];
 
-    /* -------------------------------------------------------------
-       3. 365天每日声波黄历推荐策划库 (365 Days Sonic Almanac)
-       ------------------------------------------------------------- */
-    const CALENDAR_ROCK_HOLIDAYS = {
-      "01-01": { title: "元旦 · 破晓之声", reason: "新年伊始，辞旧迎新，以热血与重型破开时代坚冰！", bands: ["新裤子", "生命之饼", "反光镜"] },
-      "02-14": { title: "情人节 · 地下浪漫狂乱", reason: "谁说朋克不懂浪漫？在噪音回授里拥抱最笨拙的真诚。", bands: ["Joyside", "五条人", "回春丹"] },
-      "03-08": { title: "妇女节 · Riot Grrrl 女权先锋", reason: "致敬中国地下摇滚不可磨灭的女性力量！", bands: ["挂在盒子上", "SUBS", "眼镜蛇"] },
-      "04-01": { title: "愚人节 · 荒诞相声讽刺日", reason: "在荒谬的现实里狂笑，用四和弦撕碎所有道貌岸然。", bands: ["顶楼的马戏团", "耳光", "与人"] },
-      "04-05": { title: "清明节 · 缅怀与追思", reason: "向逝去的时代先烈、打口带岁月与青春安魂。", bands: ["木马", "万能青年旅店", "腰乐队"] },
-      "04-08": { title: "摇滚史今日 · 科本祭日 (Kurt Cobain)", reason: "1994年4月8日科本逝世，Grunge脏吉他永生！", bands: ["刺猬", "草东没有派对", "谢天笑"] },
-      "05-01": { title: "五一劳动节 · 工人阶级铁血怒吼", reason: "向开山造路、汗流浃背的蓝领劳动者致敬！", bands: ["军械所", "林生祥&交工乐队", "二手玫瑰"] },
-      "05-04": { title: "五四青年节 · 永远年轻永远愤怒", reason: "青年何必附庸风雅？一代人终将老去，总有人正年轻！", bands: ["刺猬", "地下婴儿", "过失"] },
-      "05-09": { title: "摇滚史今日 · 崔健首唱《一无所有》", reason: "1986年5月9日工体一吼，中国摇滚破土诞生！", bands: ["崔健", "黑豹", "唐朝"] },
-      "06-10": { title: "端午节 · 沧浪濯足与楚辞离骚", reason: "汉江屈原故里与长江大水，借摇滚抒发家国离骚。", bands: ["生命之饼", "沼泽", "海皮威尔"] },
-      "06-30": { title: "摇滚史今日 · Beyond黄家驹忌日", reason: "“原谅我这一生不羁放纵爱自由”，海阔天空永存！", bands: ["Beyond", "太极", "黑鸟乐队"] },
-      "07-07": { title: "小暑 · 暴雨前的泥土低鸣", reason: "南方梅雨退去，三伏热浪席卷，蝉鸣与后朋克共振。", bands: ["法兹", "PK14", "Lur"] },
-      "08-01": { title: "建军节 · 铁骨军魂与重型装甲", reason: "重型激流金属如履带碾过，坚守阵地寸土不让！", bands: ["窒息", "超载", "战斧"] },
-      "08-15": { title: "中秋节 · 月圆之夜与异乡客", reason: "黄河岸边，高楼暮色，月光洒在漂泊者的酒杯上。", bands: ["低苦艾", "野孩子", "张玮玮&郭龙"] },
-      "09-01": { title: "开学日 · 课间暴动与逃课少年", reason: "收拾书包跳进排练室，三和弦是青春期唯一的避难所。", bands: ["花儿乐队", "板砖", "跳山羊"] },
-      "10-01": { title: "国庆长假 · 辽阔山河行囊漫游", reason: "踏上通往西北与边陲的列车，山川壮丽，长风浩荡。", bands: ["苏阳", "杭盖", "布衣"] },
-      "10-23": { title: "霜降 · 凛冬将至与冷冽延音", reason: "秋尽冬临，气温骤降，最适合在大理石般冰冷的后朋与器乐后摇中取暖。", bands: ["Lur", "惘闻", "法兹"] },
-      "10-31": { title: "万圣夜 · 暗黑哥特与极端黑金属", reason: "百鬼夜行，唢呐与黑金属在夜幕中撕裂苍穹。", bands: ["施教日", "葬尸湖", "零壹"] },
-      "11-11": { title: "光棍节 · 独行侠客与浪人情歌", reason: "独自一人漫步夜色，酒精与失真就是最好的陪伴。", bands: ["Joyside", "黑撒", "二手玫瑰"] },
-      "12-17": { title: "摇滚史今日 · 94香港红磡摇滚中国乐势力", reason: "1994年12月17日魔岩三杰与唐朝震撼红磡，华语摇滚神话之巅！", bands: ["窦唯", "张楚", "何勇"] },
-      "12-24": { title: "平安夜 · 寒夜炉火与南方温情", reason: "南方阴雨，炉火摇曳，在温柔的吉他中拥抱长夜。", bands: ["达达", "房东的猫", "声音玩具"] },
-      "12-31": { title: "跨年夜 · 告别虚无与山海相见", reason: "最后一天，哭过喊过，跨过山海，奔赴全新的轰鸣。", bands: ["草东没有派对", "寸铁", "万能青年旅店"] }
-    };
-
-    /* -------------------------------------------------------------
-       4. 全局状态与 Firebase 联网初始化
-       ------------------------------------------------------------- */
-    let RockDB = {};
-    let BandCommentsDB = {};
-    let currentCityKey = null;
-    let activeGenre = 'ALL';
-    let chartInstance = null;
-
-    let db = null;
-    let auth = null;
-    let isCloudOnline = false;
-
-    // 默认初始留言
-    const DEFAULT_COMMENTS = {
-      "Lur": [
-        { user: "光圈老酒鬼", text: "西安录耳的双人声场太恐怖了，吉他回授像潮水一样把人淹没，后劲大得走不出南门。", time: "2024-03-12 23:31" }
-      ],
-      "万能青年旅店": [
-        { user: "棉纺三厂子弟", text: "杀死那个石家庄人的小号一响，整座城市的工业废墟都在落泪。", time: "2023-08-19 21:10" }
-      ],
-      "生命之饼": [
-        { user: "武昌朋克", text: "吴维在VOX吹起风笛，大武汉永远年轻，永远有人死磕到底！", time: "2023-11-05 23:45" }
-      ],
-      "草东没有派对": [
-        { user: "台北海风", text: "山海的大风吹碎了一代人的虚无，红砖仓库里的现场令人窒息。", time: "2024-01-08 20:15" }
-      ],
-      "盲目伙伴": [
-        { user: "新乡摇滚老炮", text: "新乡九十年代的摇滚狂澜，盲目伙伴是中原最硬的石头！", time: "2022-09-14 18:22" }
-      ]
-    };
-
-    async function initFirebaseSync() {
-      const syncBadge = document.getElementById('cloud-sync-status');
-      try {
-        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-          const firebaseConfig = JSON.parse(__firebase_config);
-          const app = initializeApp(firebaseConfig);
-          auth = getAuth(app);
-          db = getFirestore(app);
-
-          // 鉴权先行
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-          } else {
-            await signInAnonymously(auth);
-          }
-
-          if (auth.currentUser) {
-            isCloudOnline = true;
-            syncBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 云端互联已同步`;
-            syncBadge.classList.replace('bg-neutral-800', 'bg-neutral-900');
-            syncBadge.classList.replace('text-neutral-300', 'text-green-400');
-            
-            setupCloudListeners();
-          }
-        } else {
-          fallbackOfflineMode();
-        }
-      } catch (err) {
-        console.warn("Firebase 初始化异常，转入单机协同存储模式:", err);
-        fallbackOfflineMode();
-      }
-    }
-
-    function fallbackOfflineMode() {
-      const syncBadge = document.getElementById('cloud-sync-status');
-      isCloudOnline = false;
-      syncBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span> 本地互通模式`;
-      syncBadge.classList.replace('bg-neutral-800', 'bg-neutral-900');
-      syncBadge.classList.replace('text-neutral-300', 'text-orange-300');
-    }
-
-    function setupCloudListeners() {
-      const appId = typeof __app_id !== 'undefined' ? __app_id : 'china-rock-zine-map';
-
-      // 1. 监听新增乐队 (严格路径 Rule 1 & Rule 2)
-      try {
-        const bandsCol = collection(db, 'artifacts', appId, 'public', 'data', 'bands');
-        onSnapshot(bandsCol, (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-              const bandData = change.doc.data();
-              injectCloudBand(bandData);
-            }
-          });
-        }, (err) => {
-          console.error("云端乐队流监听错误:", err);
-        });
-      } catch (e) {
-        console.error("云端监听绑定失败", e);
-      }
-
-      // 2. 监听乐迷现场留言与返图 (严格路径 Rule 1 & Rule 2)
-      try {
-        const commentsCol = collection(db, 'artifacts', appId, 'public', 'data', 'comments');
-        onSnapshot(commentsCol, (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-              const comm = change.doc.data();
-              injectCloudComment(comm);
-            }
-          });
-        }, (err) => {
-          console.error("云端留言流监听错误:", err);
-        });
-      } catch (e) {
-        console.error("云端留言监听绑定失败", e);
-      }
-    }
-
-    function injectCloudBand(bandData) {
-      if (!bandData || !bandData.name || !bandData.city) return;
-      const cityName = bandData.city;
-      let cityKey = Object.keys(RockDB).find(k => RockDB[k].name === cityName);
-
-      const exists = cityKey && RockDB[cityKey].bands.some(b => b.name === bandData.name);
-      if (exists) return;
-
-      const newBand = {
-        num: bandData.num || (RAW_500_BANDS_MANIFEST.length + 1),
-        name: bandData.name,
-        city: cityName,
-        province: bandData.province || "乐迷共建",
-        year: bandData.year || 2024,
-        type: bandData.type || "POSTROCK",
-        genre: bandData.genre || "独立摇滚",
-        hit: bandData.hit || "未命名代表作",
-        desc: bandData.desc || "由乐迷云端共建录入。"
-      };
-
-      if (!cityKey) {
-        cityKey = cityName;
-        RockDB[cityKey] = {
-          id: cityKey,
-          name: cityName,
-          province: bandData.province || "乐迷共建",
-          alias: "COMMUNITY BASTION",
-          coords: bandData.coords || [108.0 + (Math.random() - 0.5) * 6, 32.0 + (Math.random() - 0.5) * 6],
-          vibe: `${cityName} 地下独立摇滚阵地，云端乐迷录入共建。`,
-          bands: [newBand]
-        };
-      } else {
-        RockDB[cityKey].bands.unshift(newBand);
-      }
-
-      updateMapSeries();
-      updateStatistics();
-      if (currentCityKey === cityKey) {
-        openDrawer(cityKey);
-      }
-    }
-
-    function injectCloudComment(comm) {
-      if (!comm || !comm.bandName) return;
-      const bandName = comm.bandName;
-      if (!BandCommentsDB[bandName]) {
-        BandCommentsDB[bandName] = [];
-      }
-
-      const isDup = BandCommentsDB[bandName].some(c => c.time === comm.time && c.text === comm.text);
-      if (!isDup) {
-        BandCommentsDB[bandName].push(comm);
-        const listEl = document.getElementById(`comment-list-${encodeURIComponent(bandName)}`);
-        if (listEl) {
-          listEl.innerHTML = renderBandCommentsHTML(BandCommentsDB[bandName]);
-        }
-      }
-    }
-
-    /* -------------------------------------------------------------
-       5. 构建全量 500+ 去重真实乐队数据库
-       ------------------------------------------------------------- */
-    function buildMasterDatabase() {
-      RockDB = {};
-
-      const seenNames = new Set();
-      const uniqueBandList = [];
-
-      RAW_500_BANDS_MANIFEST.forEach(item => {
-        const name = item[0].trim();
-        if (!seenNames.has(name)) {
-          seenNames.add(name);
-          uniqueBandList.push(item);
-        }
-      });
-
-      // 装载入全国 50+ 城市
-      uniqueBandList.forEach((item, idx) => {
-        const [name, cityName, provName, year, type, genre, hit, desc] = item;
-        const cityMeta = CITY_GEO_META[cityName] || { 
-          province: provName, 
-          coords: [108.0 + (idx % 6) * 0.4, 34.0 + (idx % 5) * 0.4], 
-          vibe: `${cityName} 地下独立摇滚声音阵地。` 
-        };
-
-        const cityKey = cityName;
-
-        if (!RockDB[cityKey]) {
-          RockDB[cityKey] = {
-            id: cityKey,
-            name: cityName,
-            province: cityMeta.province,
-            alias: `${cityName.toUpperCase()} BASTION`,
-            coords: cityMeta.coords,
-            vibe: cityMeta.vibe,
-            bands: []
-          };
-        }
-
-        RockDB[cityKey].bands.push({
-          num: idx + 1,
-          name,
-          city: cityName,
-          province: cityMeta.province,
-          year,
-          type,
-          genre,
-          hit,
-          desc
-        });
-      });
-
-      // 初始化本地留言
-      BandCommentsDB = JSON.parse(JSON.stringify(DEFAULT_COMMENTS));
-    }
-
-    /* -------------------------------------------------------------
-       6. 365天每日摇滚声波黄历计算（刚好3首，实时更新）
-       ------------------------------------------------------------- */
-    function evaluateDailySonicRecommendation() {
-      const now = new Date();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const date = String(now.getDate()).padStart(2, '0');
-      const dateKey = `${month}-${date}`;
-      const year = now.getFullYear();
-
-      document.getElementById('cal-today-text').innerText = `${year}.${month}.${date}`;
-
-      let recommendation = CALENDAR_ROCK_HOLIDAYS[dateKey];
-
-      // 若非预设固定纪念日，启用确定性季节声学哈希算法
-      if (!recommendation) {
-        const dayOfYear = Math.floor((now - new Date(year, 0, 0)) / (1000 * 60 * 60 * 24));
-        const allBandNames = RAW_500_BANDS_MANIFEST.map(b => b[0]);
-        const total = allBandNames.length;
-
-        const pick1 = allBandNames[(dayOfYear * 7 + 3) % total];
-        const pick2 = allBandNames[(dayOfYear * 13 + 17) % total];
-        const pick3 = allBandNames[(dayOfYear * 29 + 43) % total];
-
-        const seasons = [
-          { name: "春季回暖", desc: "草木蔓发，万物躁动，音墙伴随泥土清香复苏。" },
-          { name: "盛夏雷雨", desc: "滚烫水泥路面与午后暴雨，高增益失真与汗水的共鸣。" },
-          { name: "金秋清肃", desc: "秋风渐起，落叶与后朋克低频共振的深思时分。" },
-          { name: "极冬严寒", desc: "大雪覆城，在刺骨寒风中唯有吉他过载能够取暖。" }
-        ];
-        const curSeason = seasons[Math.floor(now.getMonth() / 3)];
-
-        recommendation = {
-          title: `日历声波 · ${curSeason.name}`,
-          reason: `第 ${dayOfYear} 天日常共振。${curSeason.desc} 今日精选3支独一声音。`,
-          bands: [pick1, pick2, pick3]
-        };
-      }
-
-      document.getElementById('cal-occasion-title').innerText = recommendation.title;
-      document.getElementById('cal-occasion-desc').innerText = recommendation.reason;
-
-      const container = document.getElementById('cal-songs-container');
-      container.innerHTML = '';
-
-      recommendation.bands.slice(0, 3).forEach((bandName, idx) => {
-        let foundBand = null;
-        let foundCity = null;
-
-        for (const cKey in RockDB) {
-          const b = RockDB[cKey].bands.find(x => x.name.toLowerCase() === bandName.toLowerCase());
-          if (b) {
-            foundBand = b;
-            foundCity = RockDB[cKey];
-            break;
-          }
-        }
-
-        if (foundBand) {
-          const itemEl = document.createElement('div');
-          itemEl.className = "p-2 bg-[#faf6ec] border-2 border-black hover:bg-black hover:text-white transition cursor-pointer flex items-center justify-between gap-2 shadow-[-2px_2px_0px_#000] active:scale-95 group";
-          
-          itemEl.onclick = () => {
-            window.closeCalendarModal();
-            window.selectSearchResult(foundCity.id, foundBand.name);
-          };
-
-          itemEl.innerHTML = `
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[10px] font-mono font-black bg-red-700 text-white px-1">TRACK 0${idx+1}</span>
-                <span class="font-black text-xs group-hover:text-red-400 text-black underline">${foundBand.name}</span>
-                <span class="text-[10px] font-mono px-1 bg-[#ded3ba] text-black border border-black">${foundCity.name}</span>
-              </div>
-              <div class="text-[11px] text-neutral-700 group-hover:text-neutral-300 font-mono mt-0.5 truncate">
-                《${foundBand.hit}》 · ${foundBand.genre}
-              </div>
-            </div>
-            <i class="fa-solid fa-crosshairs text-red-700 group-hover:text-red-400 text-xs shrink-0 group-hover:scale-125 transition"></i>
-          `;
-
-          container.appendChild(itemEl);
-        }
-      });
-    }
-
-    /* -------------------------------------------------------------
-       7. 提示气泡 (Toast)
-       ------------------------------------------------------------- */
-    let toastTimer = null;
-    function showToast(msg) {
-      const toast = document.getElementById('toast-message');
-      const text = document.getElementById('toast-text');
-      text.innerText = msg;
-      toast.classList.remove('hidden');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 2600);
-    }
-
-    /* -------------------------------------------------------------
-       8. ECharts 4 中国高精度矢量地图渲染
-       ------------------------------------------------------------- */
-    function initChinaMap() {
-      const container = document.getElementById('echarts-china-map');
-      chartInstance = echarts.init(container);
-
-      updateMapSeries();
-
-      chartInstance.on('click', function(params) {
-        if (params.seriesType === 'effectScatter') {
-          const cityKey = params.data.cityKey;
-          if (cityKey && RockDB[cityKey]) {
-            openDrawer(cityKey);
-          }
-        }
-      });
-
-      window.addEventListener('resize', () => {
-        if (chartInstance) chartInstance.resize();
-      });
-
-      updateStatistics();
-    }
-
-    function buildScatterData() {
-      const points = [];
-      Object.keys(RockDB).forEach(key => {
-        const city = RockDB[key];
-        const filtered = city.bands.filter(b => activeGenre === 'ALL' || b.type === activeGenre);
-        if (filtered.length > 0 || activeGenre === 'ALL') {
-          points.push({
-            name: `${city.name} (${filtered.length})`,
-            value: [city.coords[0], city.coords[1], filtered.length],
-            cityKey: key
-          });
-        }
-      });
-      return points;
-    }
-
-    function updateMapSeries() {
-      const scatterData = buildScatterData();
-
-      const option = {
-        backgroundColor: '#e5dcbf',
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: '#141311',
-          borderColor: '#c5221f',
-          borderWidth: 2,
-          textStyle: { color: '#faf6eb', fontFamily: 'Courier Prime, sans-serif' },
-          formatter: function(params) {
-            if (params.seriesType === 'effectScatter') {
-              return `<b>${params.name}</b><br/><span style="color:#f87171">点击查阅此据点全部独一乐队详案</span>`;
-            }
-            return params.name;
-          }
+    /********************************************************************
+     * 3. 摇滚朝圣打卡路线库
+     ********************************************************************/
+    const PILGRIMAGE_ROUTES = [
+        {
+            id: "RT01",
+            title: "北京地下摇滚黄金时代一日朝圣线",
+            city: "北京",
+            desc: "重走1995-2012中国摇滚心脏地带：从乌托邦排练村落、摇滚军校到新浪潮噪音现场。",
+            stops: [
+                { name: "1. 北京迷笛音乐学校", coord: [116.2150, 40.0720], note: "上午：探访中国摇滚黄埔军校" },
+                { name: "2. 树村摇滚村遗址", coord: [116.2980, 40.0450], note: "中午：凭吊舌头、痛仰、木马当年苦练的平房胡同" },
+                { name: "3. 五道口 D-22 与豪运旧址", coord: [116.3380, 39.9920], note: "下午：重温无聊军队朋克风暴与Carsick Cars新浪潮" },
+                { name: "4. 五道营 School / 鼓楼独音唱片", coord: [116.4160, 39.9480], note: "夜晚：淘一张地下黑胶，喝一杯看一场新乐队演出" }
+            ]
         },
-        geo: {
-          map: 'china',
-          roam: true,
-          zoom: 1.25,
-          center: [105, 36],
-          label: {
-            normal: {
-              show: true,
-              textStyle: {
-                color: '#44403c',
-                fontSize: 10,
-                fontWeight: 'bold'
-              }
-            },
-            emphasis: {
-              show: true,
-              textStyle: {
-                color: '#ba1a1a',
-                fontSize: 12,
-                fontWeight: '900'
-              }
-            }
-          },
-          itemStyle: {
-            normal: {
-              areaColor: '#ede3cd',
-              borderColor: '#292524',
-              borderWidth: 1.3,
-              shadowColor: 'rgba(0, 0, 0, 0.12)',
-              shadowBlur: 3
-            },
-            emphasis: {
-              areaColor: '#dfd2b5',
-              borderColor: '#ba1a1a',
-              borderWidth: 2.2
-            }
-          }
+        {
+            id: "RT02",
+            title: "武汉「朋克之都」鲁磨路躁动路线",
+            city: "武汉",
+            desc: "穿越东湖与光谷，感受生命之饼SMZB、花伦与Chinese Football生长的江城土壤。",
+            stops: [
+                { name: "1. 汉口江滩与轮渡", coord: [114.2980, 30.5820], note: "起点：感受码头文化与《大武汉》的江湖气" },
+                { name: "2. 东湖凌波门", coord: [114.3650, 30.5480], note: "午后：花伦与武汉器乐后摇的湖水灵感源泉" },
+                { name: "3. 鲁磨路曹家湾 / Prison旧址", coord: [114.3920, 30.5220], note: "傍晚：早期武汉地下乐队聚居村落" },
+                { name: "4. VOX Livehouse (国光大厦)", coord: [114.4020, 30.5180], note: "深夜：在武汉最传奇的地下现场跳水Pogo" }
+            ]
         },
-        series: [
-          {
-            name: '摇滚据点',
-            type: 'effectScatter',
-            coordinateSystem: 'geo',
-            data: scatterData,
-            symbolSize: function(val) {
-              return Math.max(14, Math.min(26, val[2] * 0.9 + 10));
-            },
-            showEffectOn: 'render',
-            rippleEffect: {
-              brushType: 'stroke',
-              scale: 3.2,
-              period: 3
-            },
-            hoverAnimation: true,
-            label: {
-              normal: {
-                formatter: '{b}',
-                position: 'top',
-                show: true,
-                textStyle: {
-                  color: '#141311',
-                  fontWeight: 'bold',
-                  fontSize: 10,
-                  backgroundColor: 'rgba(255,255,255,0.88)',
-                  padding: [2, 4],
-                  borderColor: '#141311',
-                  borderWidth: 1
-                }
-              }
-            },
-            itemStyle: {
-              normal: {
-                color: '#c5221f',
-                shadowBlur: 6,
-                shadowColor: '#141311'
-              }
-            },
-            zlevel: 2
-          }
-        ]
-      };
-
-      chartInstance.setOption(option);
-    }
-
-    function updateStatistics() {
-      const cityCount = Object.keys(RockDB).length;
-      let bandCount = 0;
-      Object.values(RockDB).forEach(c => bandCount += c.bands.length);
-      document.getElementById('stat-city-count').innerText = cityCount;
-      document.getElementById('stat-band-count').innerText = bandCount;
-    }
-
-    /* -------------------------------------------------------------
-       9. 搜索系统：最高层级（z-index: 99999），正正贴合在输入框下方
-       ------------------------------------------------------------- */
-    window.handleSearchKeyDown = function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        window.executeSearch();
-      }
-      const val = document.getElementById('city-search').value.trim();
-      const clearBtn = document.getElementById('clear-search-btn');
-      if (val) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
-    };
-
-    window.clearSearchInput = function() {
-      document.getElementById('city-search').value = '';
-      document.getElementById('clear-search-btn').classList.add('hidden');
-      window.closeSearchResults();
-    };
-
-    window.executeSearch = function() {
-      const query = document.getElementById('city-search').value.trim().toLowerCase();
-      if (!query) {
-        showToast("请输入想要检索的乐队名、代表作或城市名称！");
-        return;
-      }
-
-      const results = [];
-
-      Object.keys(RockDB).forEach(cityKey => {
-        const city = RockDB[cityKey];
-        const cityMatches = city.name.toLowerCase().includes(query) || city.province.toLowerCase().includes(query);
-
-        city.bands.forEach(band => {
-          const nameMatches = band.name.toLowerCase().includes(query);
-          const hitMatches = band.hit.toLowerCase().includes(query);
-          const genreMatches = band.genre.toLowerCase().includes(query);
-
-          if (nameMatches || hitMatches || genreMatches || cityMatches) {
-            results.push({
-              cityKey: cityKey,
-              cityName: city.name,
-              province: city.province,
-              band: band
-            });
-          }
-        });
-      });
-
-      if (results.length === 0) {
-        showToast(`未在 500+ 全库中检索到包含「${query}」的条目`);
-        window.closeSearchResults();
-        return;
-      }
-
-      const resultsContainer = document.getElementById('search-results-list');
-      const resultsModal = document.getElementById('search-results-modal');
-      const countSpan = document.getElementById('search-results-count');
-
-      countSpan.innerText = results.length;
-      resultsContainer.innerHTML = '';
-
-      results.forEach((item) => {
-        const el = document.createElement('div');
-        el.className = "p-2 bg-[#f4ede0] border border-black hover:bg-black hover:text-white transition cursor-pointer flex items-center justify-between gap-2 group";
-        
-        let typeBadge = item.band.type === 'PUNK' ? '朋克' : item.band.type === 'METAL' ? '金属' : '后摇/另类';
-
-        el.innerHTML = `
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="text-xs font-mono font-bold text-neutral-500 group-hover:text-neutral-300">#${String(item.band.num).padStart(3, '0')}</span>
-              <span class="font-black text-sm group-hover:text-red-400 text-black underline">${item.band.name}</span>
-              <span class="text-[10px] font-mono px-1 bg-[#dfd3ba] text-black border border-black">${item.cityName}·${item.province}</span>
-              <span class="text-[10px] font-mono px-1 bg-red-800 text-white">${typeBadge}</span>
-            </div>
-            <div class="text-[11px] text-neutral-600 group-hover:text-neutral-300 truncate mt-0.5 font-mono">
-              代表作: 《${item.band.hit}》 · ${item.band.genre}
-            </div>
-          </div>
-          <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-red-700 group-hover:text-red-400 shrink-0"></i>
-        `;
-
-        el.onclick = () => {
-          window.selectSearchResult(item.cityKey, item.band.name);
-        };
-
-        resultsContainer.appendChild(el);
-      });
-
-      resultsModal.classList.remove('hidden');
-    };
-
-    window.closeSearchResults = function() {
-      document.getElementById('search-results-modal').classList.add('hidden');
-    };
-
-    window.selectSearchResult = function(cityKey, bandName) {
-      window.closeSearchResults();
-
-      const city = RockDB[cityKey];
-      if (!city) return;
-
-      if (chartInstance) {
-        chartInstance.setOption({
-          geo: {
-            center: city.coords,
-            zoom: 5.0
-          }
-        });
-      }
-
-      openDrawer(cityKey, bandName);
-    };
-
-    /* -------------------------------------------------------------
-       10. 城市抽屉与独一乐队文献卡片
-       ------------------------------------------------------------- */
-    function openDrawer(cityKey, targetBandNameToHighlight = null) {
-      const city = RockDB[cityKey];
-      if (!city) return;
-
-      currentCityKey = cityKey;
-
-      document.getElementById('drawer-region-tag').innerText = `${city.province} · ${city.alias || 'UNDERGROUND'}`;
-      document.getElementById('drawer-city-title').innerText = city.name;
-      document.getElementById('drawer-city-alias').innerText = `[ 经纬度: ${city.coords[0].toFixed(2)}, ${city.coords[1].toFixed(2)} ]`;
-      document.getElementById('drawer-city-desc').innerText = city.vibe;
-
-      const bandsContainer = document.getElementById('drawer-bands-container');
-      bandsContainer.innerHTML = '';
-
-      const filteredBands = city.bands.filter(b => activeGenre === 'ALL' || b.type === activeGenre);
-      document.getElementById('drawer-list-count').innerText = filteredBands.length;
-
-      if (filteredBands.length === 0) {
-        bandsContainer.innerHTML = `<div class="p-4 text-center font-mono text-xs border border-dashed border-black">该风格暂无收录，点击下方直接登记添加！</div>`;
-      } else {
-        filteredBands.forEach((band) => {
-          const card = document.createElement('div');
-          const isTarget = targetBandNameToHighlight && band.name.toLowerCase() === targetBandNameToHighlight.toLowerCase();
-          
-          card.id = `band-card-${encodeURIComponent(band.name)}`;
-          card.className = `p-3.5 bg-[#faf6eb] border-2 border-black shadow-[-2px_2px_0px_#000] transition ${isTarget ? 'search-hit-flash' : ''}`;
-          
-          let tagColor = "bg-red-800 text-white";
-          let tagText = "后摇/另类";
-          if (band.type === 'PUNK') {
-            tagColor = "bg-orange-700 text-white";
-            tagText = "朋克 PUNK";
-          } else if (band.type === 'METAL') {
-            tagColor = "bg-black text-amber-300";
-            tagText = "重金属 METAL";
-          }
-
-          const commentsList = BandCommentsDB[band.name] || [];
-
-          card.innerHTML = `
-            <div class="flex items-center justify-between border-b border-black pb-1.5">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-xs font-mono font-black text-red-900 bg-red-100 border border-red-300 px-1">#${band.num}</span>
-                <span class="text-[10px] font-mono font-black px-1.5 py-0.5 ${tagColor}">${tagText}</span>
-                <span class="text-[10px] font-mono font-bold bg-[#ded3ba] px-1 border border-black">EST. ${band.year}</span>
-                <h4 class="text-base font-black text-black tracking-tight inline ml-1">${band.name}</h4>
-              </div>
-            </div>
-            
-            <div class="mt-2 text-xs space-y-1">
-              <p><span class="font-bold text-neutral-600">风格流派:</span> <span class="font-mono text-black font-bold">${band.genre}</span></p>
-              <p><span class="font-bold text-neutral-600">标志代表作:</span> <span class="font-mono font-black text-red-900 bg-red-100 px-1 border border-red-300">《${band.hit}》</span></p>
-              <p class="text-neutral-800 italic border-t border-dashed border-neutral-300 pt-1.5 text-[11px] leading-relaxed">“${band.desc}”</p>
-            </div>
-
-            <!-- 现场返图与乐迷留言簿模块 -->
-            <div class="mt-3 pt-2.5 border-t-2 border-black bg-[#f2e9d7] p-2.5 border border-dashed">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-1 text-[11px] font-black text-red-900">
-                  <i class="fa-solid fa-camera-retro"></i>
-                  <span>现场返图与留言簿 (${commentsList.length})</span>
-                </div>
-                <button onclick="window.toggleCommentBox('${encodeURIComponent(band.name)}')" class="text-[10px] font-mono font-bold underline hover:text-red-700">
-                  + 我要上传/留言
-                </button>
-              </div>
-
-              <!-- 上传与留言输入折叠区 -->
-              <div id="comment-form-${encodeURIComponent(band.name)}" class="hidden mb-3 bg-[#faf6eb] p-2 border border-black">
-                <div class="space-y-1.5 text-[11px]">
-                  <div>
-                    <input type="text" id="comm-user-${encodeURIComponent(band.name)}" placeholder="你的乐迷花名/代号 (如: 嚎叫老青年)" class="w-full bg-white border border-black px-2 py-1 font-mono text-xs focus:outline-none">
-                  </div>
-                  <div>
-                    <textarea id="comm-text-${encodeURIComponent(band.name)}" rows="2" placeholder="写下你的现场回忆、演出感受或地下寄语..." class="w-full bg-white border border-black px-2 py-1 font-sans text-xs focus:outline-none"></textarea>
-                  </div>
-                  <div class="flex items-center justify-between gap-2">
-                    <label class="cursor-pointer bg-[#ded3ba] hover:bg-yellow-200 border border-black px-2 py-1 font-mono text-[10px] font-bold flex items-center gap-1">
-                      <i class="fa-solid fa-paperclip"></i>
-                      <span>上传现场票根/照片</span>
-                      <input type="file" accept="image/*" id="comm-file-${encodeURIComponent(band.name)}" onchange="window.previewUploadImage(this, '${encodeURIComponent(band.name)}')" class="hidden">
-                    </label>
-                    <span id="comm-file-name-${encodeURIComponent(band.name)}" class="text-[10px] text-neutral-500 truncate max-w-[120px]">未选图片</span>
-                  </div>
-                  
-                  <div id="comm-img-preview-box-${encodeURIComponent(band.name)}" class="hidden pt-1">
-                    <img id="comm-img-preview-${encodeURIComponent(band.name)}" class="h-16 w-auto border border-black object-cover">
-                  </div>
-
-                  <div class="flex justify-end gap-1.5 pt-1">
-                    <button type="button" onclick="window.toggleCommentBox('${encodeURIComponent(band.name)}')" class="px-2 py-0.5 border border-black text-neutral-600 font-mono text-[10px]">取消</button>
-                    <button type="button" onclick="window.submitBandComment('${encodeURIComponent(band.name)}')" class="px-3 py-0.5 border border-black bg-red-700 text-white font-mono text-[10px] font-bold hover:bg-red-800">盖印提交</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 留言展示列表 -->
-              <div id="comment-list-${encodeURIComponent(band.name)}" class="space-y-2">
-                ${renderBandCommentsHTML(commentsList)}
-              </div>
-            </div>
-          `;
-          bandsContainer.appendChild(card);
-        });
-      }
-
-      const drawer = document.getElementById('band-drawer');
-      drawer.classList.remove('translate-x-full', 'translate-y-full');
-
-      if (targetBandNameToHighlight) {
-        setTimeout(() => {
-          const targetCard = document.getElementById(`band-card-${encodeURIComponent(targetBandNameToHighlight)}`);
-          if (targetCard) {
-            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 300);
-      }
-    }
-
-    window.closeDrawer = function() {
-      const drawer = document.getElementById('band-drawer');
-      drawer.classList.add('translate-x-full', 'translate-y-full');
-      currentCityKey = null;
-    };
-
-    /* -------------------------------------------------------------
-       11. 现场照片上传与留言簿 (Canvas 智能压缩)
-       ------------------------------------------------------------- */
-    function renderBandCommentsHTML(comments) {
-      if (!comments || comments.length === 0) {
-        return `<p class="text-[10px] text-neutral-500 font-mono italic">暂无现场返图，成为第一个留下回忆的人吧！</p>`;
-      }
-
-      return comments.slice().reverse().map(item => `
-        <div class="bg-[#faf6eb] p-2 border border-black text-xs font-sans shadow-[-1px_1px_0px_#000]">
-          <div class="flex items-center justify-between text-[10px] font-mono text-neutral-600 border-b border-dashed border-neutral-300 pb-0.5">
-            <span class="font-bold text-black flex items-center gap-1">
-              <i class="fa-solid fa-user-tag text-red-800"></i> ${item.user || '地下乐迷'}
-            </span>
-            <span>${item.time || ''}</span>
-          </div>
-          <p class="mt-1 text-[11px] text-neutral-900 leading-snug">${item.text}</p>
-          ${item.image ? `
-            <div class="mt-1.5">
-              <img src="${item.image}" onclick="window.openLightbox('${item.image}', '${item.user}的现场返图')" alt="现场照片" class="h-20 w-auto max-w-full border border-black cursor-zoom-in hover:opacity-90 object-cover inline-block shadow-sm">
-            </div>
-          ` : ''}
-        </div>
-      `).join('');
-    }
-
-    window.toggleCommentBox = function(encodedBandName) {
-      const box = document.getElementById(`comment-form-${encodedBandName}`);
-      if (box) {
-        box.classList.toggle('hidden');
-      }
-    };
-
-    const pendingUploadImages = {};
-
-    window.previewUploadImage = function(input, encodedBandName) {
-      if (!input.files || !input.files[0]) return;
-      const file = input.files[0];
-      document.getElementById(`comm-file-name-${encodedBandName}`).innerText = file.name;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const maxDim = 600;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
-
-          pendingUploadImages[encodedBandName] = compressedDataUrl;
-          document.getElementById(`comm-img-preview-${encodedBandName}`).src = compressedDataUrl;
-          document.getElementById(`comm-img-preview-box-${encodedBandName}`).classList.remove('hidden');
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    };
-
-    window.submitBandComment = async function(encodedBandName) {
-      const bandName = decodeURIComponent(encodedBandName);
-      const userInput = document.getElementById(`comm-user-${encodedBandName}`);
-      const textInput = document.getElementById(`comm-text-${encodedBandName}`);
-      
-      const user = userInput.value.trim() || "匿名地下乐迷";
-      const text = textInput.value.trim();
-      const image = pendingUploadImages[encodedBandName] || null;
-
-      if (!text && !image) {
-        showToast("请填写留言文字或选择一张现场照片！");
-        return;
-      }
-
-      const now = new Date();
-      const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-      const commentPayload = {
-        bandName,
-        user,
-        text: text || "（上传了现场传单与照片）",
-        image: image || "",
-        time: timeStr
-      };
-
-      // 1. 本地更新
-      if (!BandCommentsDB[bandName]) {
-        BandCommentsDB[bandName] = [];
-      }
-      BandCommentsDB[bandName].push(commentPayload);
-
-      // 2. 云端广播持久化 (Rule 1 & Rule 3)
-      if (isCloudOnline && db && auth.currentUser) {
-        try {
-          const appId = typeof __app_id !== 'undefined' ? __app_id : 'china-rock-zine-map';
-          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), commentPayload);
-        } catch (err) {
-          console.warn("云端同步留言失败:", err);
+        {
+            id: "RT03",
+            title: "中国全境「后朋克与工业锈带」横贯线",
+            city: "跨城",
+            desc: "横跨华北平原、西北古城与西南盆地，串联中国最具冷峻文学气质的四大重镇。",
+            stops: [
+                { name: "1. 石家庄 (万青/北方工业)", coord: [114.5149, 38.0428], note: "第一站：人民广场与华北制药厂工业剪影" },
+                { name: "2. 西安 (Lur:/法兹/散杀)", coord: [108.9398, 34.3416], note: "第二站：明城墙下的冷冽后朋克与迷幻音墙" },
+                { name: "3. 成都 (海朋森/声音玩具)", coord: [104.0665, 30.5728], note: "第三站：玉林小酒馆与西南地下诗歌" },
+                { name: "4. 昭通 (腰乐队/寸铁)", coord: [103.7175, 27.3382], note: "终点站：乌蒙山深处的严肃摇滚文学巅峰" }
+            ]
+        },
+        {
+            id: "RT04",
+            title: "台北温罗汀独立噪音与浪漫夜行线",
+            city: "台北",
+            desc: "从公馆地下室到师大巷弄，寻找草东、落日飞车与甜梅号的青春切片。",
+            stops: [
+                { name: "1. 温州街/女巫店", coord: [121.5330, 25.0180], note: "起点：温罗汀独立书店与女巫店现场" },
+                { name: "2. 公馆 The Wall 这墙", coord: [121.5350, 25.0080], note: "核心：罗斯福路地下室的轰鸣记忆" },
+                { name: "3. 华山 Legacy Taipei", coord: [121.5290, 25.0440], note: "终站：老酒厂改造的千人摇滚现场" }
+            ]
         }
-      }
+    ];
 
-      userInput.value = '';
-      textInput.value = '';
-      delete pendingUploadImages[encodedBandName];
-      document.getElementById(`comm-file-name-${encodedBandName}`).innerText = "未选图片";
-      document.getElementById(`comm-img-preview-box-${encodedBandName}`).classList.add('hidden');
-      window.toggleCommentBox(encodedBandName);
+    /********************************************************************
+     * 4. 650+ 全量去重中国摇滚乐队数据库构建引擎
+     ********************************************************************/
+    const CORE_BANDS_RAW = [
+        // 西安重点与西北矩阵
+        ["Lur:", "西安", "2018年", "后朋克 / 迷幻独立", "《海浪》《逃跑的声音》", "西安新生代极具冷冽空间感与迷幻气质的独立/后朋克乐队", "西安,成都,北京"],
+        ["法兹FAZI", "西安", "2010年", "后朋克 / 独立摇滚", "《控制》《隼》《折叠故事》", "来自古城西安的狂暴Krautrock与后朋克现场机器", "西安,北京,上海"],
+        ["The Noname", "西安", "2001年", "街头朋克 / 硬核", "《We Don't Need》《西安》", "中国极具国际影响力的老牌街头莫西干朋克先驱", "西安,北京,柏林"],
+        ["岛屿心情", "西安", "2007年", "独立摇滚 / 英式", "《8+8=8》《玩具》", "西北土地上长出的浪漫英式独立律动", "西安,广州,北京"],
+        ["黑撒", "西安", "2007年", "方言摇滚 / 融合", "《陕西美食》《流川枫与苍井空》", "将关中秦腔俚语与摇滚、布鲁斯融为一炉", "西安,北京"],
+        ["张楚", "西安", "1987年", "人文摇滚 / 魔岩三杰", "《孤独的人是可耻的》《姐姐》", "中国摇滚最具悲悯诗意的游吟歌者", "西安,北京"],
+        ["许巍", "西安", "1988年", "摇滚 / 飞乐队", "《在别处》《那一年》", "早期创立飞乐队，缔造中国摇滚经典时代专辑《在别处》", "西安,北京"],
+        ["郑钧", "西安", "1992年", "硬摇滚 / 流行摇滚", "《赤裸裸》《回到拉萨》", "90年代中国摇滚标志性嗓音", "西安,杭州,北京"],
+        ["王建房", "西安", "1998年", "西北硬摇滚", "《长安夜》《活着》", "粗犷苍凉的秦地硬汉摇滚代表", "西安"],
+        ["夸克", "西安", "2012年", "独立摇滚", "《未知的旅行》", "兼具爆发力与旋律张力的西安独立乐队", "西安,北京"],
+        ["死因池", "西安", "2000年", "哥特金属 / 暗潮", "《废墟》《唤醒》", "中国老牌哥特与暗潮金属代表乐队", "西安,北京"],
+        ["腐尸Crucifix", "西安", "1996年", "死亡金属", "《腐尸》", "西北地下极端金属开山鼻祖之一", "西安"],
+        ["散杀", "西安", "1998年", "极端金属 / 碾核", "《散杀》", "90年代末西安地下重型极端音乐先驱", "西安"],
+        ["惊叫基督", "上海", "2001年", "黑金属", "《暗月》《玉门关》", "中国地下黑金属传奇乐队", "上海,北京"],
+        ["葬尸湖Zuriaake", "济南", "2001年", "氛围黑金属", "《奕秋》《孤雁》", "斗笠蓑衣，开创中国山水意境氛围黑金属国际声誉", "济南,北京"],
 
-      const listContainer = document.getElementById(`comment-list-${encodedBandName}`);
-      if (listContainer) {
-        listContainer.innerHTML = renderBandCommentsHTML(BandCommentsDB[bandName]);
-      }
+        // 石家庄与河北矩阵
+        ["万能青年旅店", "石家庄", "1996年", "独立摇滚 / 前卫摇滚", "《杀死那个石家庄人》《冀西南林路行》", "华北平原重工业黄昏的史诗注脚，小号与失真交织的时代经典", "石家庄,北京,台北"],
+        ["脉冲", "石家庄", "2000年", "独立摇滚", "《石家庄》", "石家庄早期地下摇滚重要代表", "石家庄"],
+        ["相对论", "石家庄", "2003年", "朋克 / 独立", "《相对论》", "活跃于石家庄地下现场的中坚力量", "石家庄"],
+        ["旺财", "石家庄", "2001年", "独立流行 / 朋克", "《小明》", "《我爱摇滚乐》时期极具幽默感的地下乐队", "石家庄,北京"],
 
-      showToast(`已成功为【${bandName}】盖印归档新回忆！`);
-    };
+        // 北京传奇与全世代矩阵
+        ["崔健", "北京", "1984年", "中国摇滚开山鼻祖", "《一无所有》《新长征路上的摇滚》《红旗下的蛋》", "1986年工体一声吼，揭开中国摇滚乐历史序幕", "北京,新乡,香港"],
+        ["窦唯", "北京", "1988年", "后朋克 / 氛围实验", "《黑梦》《艳阳天》《山河水》", "从黑豹主唱到《黑梦》后朋克巅峰，再到纯器乐即兴仙境", "北京,香港"],
+        ["何勇", "北京", "1989年", "朋克 / 民乐摇滚", "《垃圾场》《钟鼓楼》", "麒麟芯片般的愤怒与诗意，94红磡震慑香江", "北京,香港"],
+        ["唐朝", "北京", "1988年", "重金属 / 艺术摇滚", "《梦回唐朝》《国际歌》", "中国重金属开山鼻祖，大唐气象与东方古典主义金属巅峰", "北京,香港,新乡"],
+        ["黑豹", "北京", "1987年", "流行金属 / 硬摇滚", "《无地自容》《Don't Break My Heart》", "中国摇滚史上商业与传唱度最高的传奇乐队之一", "北京,香港"],
+        ["高旗&超载", "北京", "1991年", "激流金属 / 摇滚", "《祖先的阴影》《不要告别》", "中国第一支激流金属乐队，高亢壮烈的摇滚诗篇", "北京,新乡"],
+        ["痛仰", "北京", "1999年", "硬核说唱 / 独立摇滚", "《这是个问题》《公路之歌》《哪里有压迫哪里就有反抗》", "树村走出的硬核摇滚图腾，迷笛精神的象征", "北京,树村,大理"],
+        ["新裤子", "北京", "1996年", "朋克 / 新浪潮Synth-Pop", "《龙虎人丹》《生命因你而火热》", "从车库朋克、黏土动画到迪斯科新浪潮的摩登时代", "北京,上海"],
+        ["二手玫瑰", "哈尔滨", "1999年", "民乐摇滚 / 艺术摇滚", "《伎俩》《仙儿》《采花》", "二人转唢呐与硬摇滚的妖娆碰撞，极具戏剧张力", "哈尔滨,北京"],
+        ["舌头", "乌鲁木齐", "1994年", "工业重型 / 实验朋克", "《小鸡出壳》《妈妈一起飞吧，妈妈一起摇滚吧》", "树村之王，中国地下摇滚最具压迫感与哲学锋芒的骨头", "乌鲁木齐,北京"],
+        ["木马", "长沙", "1998年", "哥特摇滚 / 华丽摇滚", "《舞步》《果冻帝国》《Feifei Run》", "树村唯美暗黑诗篇，开创中国哥特与迷幻美学高峰", "长沙,北京"],
+        ["地下婴儿", "北京", "1993年", "朋克鼻祖", "《觉醒》《都一样》", "高幸与高洋兄弟创立，中国第一支真正意义上的纯正朋克乐队", "北京"],
+        ["脑浊", "北京", "1997年", "朋克 / Ska Punk", "《再见乌托邦》《北京杂种》", "无聊军队四驱车核心，中国朋克走向国际巡演的先锋", "北京,纽约"],
+        ["反光镜", "北京", "1997年", "流行朋克 / 朋克", "《还我蔚蓝》《成长瞬间》", "无聊军队核心成员，旋律与滑板文化代表", "北京"],
+        ["69乐队", "北京", "1996年", "Oi! 朋克", "《革命》《无聊军队》", "梁巍创立，北京早期地下朋克精神火种", "北京"],
+        ["A-Boys", "北京", "1997年", "朋克", "《Wuliao Contingent》", "无聊军队传奇四乐队之一", "北京"],
+        ["诱导社", "北京", "1997年", "放克朋克 / 垃圾摇滚", "《214》《美好时代》", "雷霖主创，早期地下最生猛邪典的BASS律动", "北京"],
+        ["蜜三刀", "北京", "1999年", "Oi! / 街头朋克", "《骄傲的走》《Chinese Bootboys》", "雷骏创立，中国Skinhead与Oi!街头朋克精神图腾", "北京"],
+        ["过失Demerit", "北京", "2004年", "街头朋克 / 硬核", "《Bastards of the Nation》", "极具国际声誉的硬朗街头朋克劲旅", "北京,旧金山"],
+        ["SUBS", "北京", "2001年", "车库朋克 / 后朋克", "《杀不死》《Down》", "抗猫领衔，被誉为中国现场最具爆发力的车库朋克传奇", "北京,奥斯陆"],
+        ["挂在盒子上", "北京", "1998年", "女子朋克 / 新浪潮", "《Yellow Banana》", "登上美国《Newsweek》封面的中国初代女子朋克先锋", "北京"],
+        ["Joyside", "北京", "2001年", "车库摇滚 / 浪潮", "《Drunk Is Beautiful》《Neptune》", "2000年代北京酒鬼浪漫主义车库摇滚传奇", "北京"],
+        ["Carsick Cars", "北京", "2005年", "噪音摇滚 / 独立", "《中南海》《广场》", "D-22场景灵魂，音速青年式的吉噪音墙", "北京,纽约"],
+        ["刺猬", "北京", "2005年", "噪音流行 / 独立摇滚", "《白日梦蓝》《火车驶向云外，梦安魂于九霄》", "狂暴双人声与少女鼓点，书写一代青年莽撞青春", "北京"],
+        ["后海大鲨鱼", "北京", "2004年", "舞曲摇滚 / 冲浪车库", "《猛犸》《心要野》", "摩登复古的车库迪斯科与冲浪摇滚浪潮", "北京"],
+        ["重塑雕像的权利", "北京", "2003年", "后朋克 / 实验电子", "《Cut Off!》《喝一杯水》", "原籍南京扎根北京，冷峻精密的包豪斯式后朋克巨匠", "南京,北京,伦敦"],
+        ["军械所", "北京", "1999年", "激流金属", "《斗争》", "树村重型阵营悍将", "北京"],
+        ["病蛹", "北京", "1999年", "新金属 / 硬核", "《放开我》", "树村时期极具凶狠现场冲击力的重型乐队", "北京"],
+        ["扭曲的机器", "北京", "1998年", "新金属 / 硬核说唱", "《镜子中》《不可抗拒》", "中国新金属现场长青军团", "北京"],
+        ["夜叉", "北京", "1995年", "金属 / 金属核", "《自由》《发发发》", "发源于四川扎根树村的中国重型金属老炮", "成都,北京"],
+        ["AK-47", "北京", "2000年", "工业金属", "《出发》《无法停下》", "来自云南扎根北京的冷酷工业重型机械", "昆明,北京"],
+        ["窒息", "北京", "1997年", "激流金属", "《逆风飞扬》《身躯就是最坚硬的金属》", "中国激流金属不倒旗帜", "北京"],
+        ["施教日", "北京", "2000年", "交响黑金属 / 暗潮", "《天湖》《魔境》", "中国极端金属与黑金属美学的开拓者", "北京"],
+        ["冥界", "北京", "1992年", "死亡金属", "《暗红的污水》", "中国第一支死亡金属乐队", "北京"],
+        ["战斧", "北京", "1992年", "死亡/激流金属", "《天葬》《死城》", "1992成军的中国重型极端金属活化石", "北京"],
+        ["零壹", "北京", "2004年", "东方宗教重型金属", "《嚎叫》《世界末日》", "李难主创，极具剧场震慑力的重型现场", "北京"],
+        ["郁乐队", "北京", "2003年", "旋律死亡金属", "《异海之王》", "Wacken全球金属战中国区冠军", "北京"],
+        ["左右", "北京", "2005年", "新金属 / 柔情重型", "《在你左右》", "力量与深情旋律兼具的新金属代表", "北京"],
+        ["肆伍", "北京", "2004年", "死核 / 金属核", "《没有英雄》", "凶悍凌厉的死核现场机器", "北京"],
+        ["霜冻前夜", "北京", "2004年", "旋律死亡金属", "《极夜》《冰封王座》", "中国北派旋死金属代表", "北京"],
+        ["末裔", "北京", "2002年", "前卫金属", "《末裔》", "技术流前卫重型乐队", "北京"],
+        ["颠覆M", "呼和浩特", "2000年", "民族金属核", "《蒙古立》《根》", "将蒙古传统器乐与现代金属核完美熔铸", "呼和浩特,北京"],
+        ["九宝", "呼和浩特", "2011年", "蒙古民族金属", "《十丈铜嘴》《灵眼》", "席卷欧洲各大金属音乐节的草原金属风暴", "呼和浩特,北京"],
+        ["杭盖", "呼和浩特", "2004年", "民族摇滚 / 世界音乐", "《希格希日》《初升的太阳》", "马头琴、呼麦与电声摇滚的苍穹轰鸣", "呼和浩特,北京"],
+        ["零点", "呼和浩特", "1989年", "流行金属 / 硬摇滚", "《爱不爱我》《相信自己》", "内蒙走出的90年代国民级摇滚乐队", "呼和浩特,北京"],
+        ["萨满", "长春", "2006年", "重金属 / 工业史诗金属", "《鲸歌》《留声机》", "东北重工业土壤孕育的磅礴历史叙事金属", "长春"],
+        ["黑麒", "长春", "2012年", "民乐黑金属", "《哀郢》《金陵祭》", "京剧、琵琶与极端黑金属交融的东方悲歌", "长春"],
 
-    window.openLightbox = function(src, caption) {
-      document.getElementById('lightbox-img').src = src;
-      document.getElementById('lightbox-caption').innerText = caption || "现场记录小样";
-      document.getElementById('image-lightbox').classList.remove('hidden');
-      document.getElementById('image-lightbox').classList.add('flex');
-    };
+        // 武汉与华中矩阵
+        ["生命之饼SMZB", "武汉", "1996年", "硬核朋克 / 凯尔特朋克", "《大武汉》《Ten Years Rebellion》", "吴维创立，武汉朋克教父，风笛与硬核抗争精神的丰碑", "武汉"],
+        ["达达", "武汉", "1996年", "英式摇滚 / 独立流行", "《南方》《Song F》《黄金时代》", "彭坦领衔，千禧年中国英式吉他摇滚巅峰", "武汉,北京"],
+        ["花伦", "武汉", "2004年", "后摇滚 / 氛围器乐", "《大象席地而坐》《武汉武汉》", "从阴郁暴烈后摇到深邃电影氛围音景", "武汉"],
+        ["Chinese Football", "武汉", "2011年", "数学摇滚 / Emo", "《守门员》《电动少女》", "亚洲Emo与数学摇滚标杆，清澈交错的吉他分解和弦", "武汉,台北,东京"],
+        ["AV大久保", "武汉", "2006年", "新浪潮 / 怪诞朋克", "《大时代》《陆伯威》", "充满市井B级片幽默与合成器怪诞张力", "武汉,北京"],
+        ["死逗乐", "武汉", "1999年", "硬核朋克", "《死逗乐》", "武汉鲁磨路早期硬核朋克元老", "武汉"],
+        ["怒火", "武汉", "1998年", "朋克", "《怒火》", "90年代末武汉地下朋克先驱", "武汉"],
 
-    window.closeLightbox = function() {
-      document.getElementById('image-lightbox').classList.add('hidden');
-      document.getElementById('image-lightbox').classList.remove('flex');
-    };
+        // 成都、重庆与西南矩阵
+        ["声音玩具", "成都", "1999年", "艺术摇滚 / 独立", "《明天你依旧对我微笑》《秘密的爱》", "欧珈源主创，西南地下摇滚最细腻华美的文学长诗", "成都"],
+        ["海朋森", "成都", "2015年", "后朋克 / 艺术摇滚", "《我不要别的历史》《成长小说》", "陈思江极具戏剧张力的朗诵式人声与锋利后朋克吉他", "成都"],
+        ["秘密行动STOLEN", "成都", "2011年", "暗潮电子 / 后朋克", "《Fragment》《Chaos》", "受New Order制作人青睐的冷酷暗潮电子摇滚", "成都,柏林"],
+        ["马赛克", "成都", "2008年", "复古迪斯科 / 独立摇滚", "《霓虹甜心》《夜猫》", "复古浪漫的80年代合成器舞池摇滚", "成都"],
+        ["阿修罗", "成都", "2000年", "流行朋克 / 摇滚", "《唤醒沉睡的你》", "成都小酒馆黄金年代代表乐队", "成都"],
+        ["变色蝴蝶", "成都", "2005年", "迷幻摇滚", "《迷失》", "成都迷幻与即兴摇滚中坚", "成都"],
+        ["棱镜", "成都", "2015年", "独立流行 / 摇滚", "《总有一天你会出现在我身边》", "成都浪漫主义旋律摇滚", "成都"],
+        ["霓虹花园", "重庆", "2017年", "独立摇滚 / 后朋克", "《无人的海边》《但我爱你》", "山城重庆走出的热血浪漫现场", "重庆"],
+        ["腰乐队", "昭通", "1998年", "地下先锋 / 严肃摇滚", "《相见恨晚》《一个短篇》《明日小城》", "诞生于云南昭通卷烟厂与医院，中国地下摇滚最孤傲锋利的文学高峰", "昭通,昆明"],
+        ["寸铁", "昭通", "2014年", "先锋民谣 / 独立摇滚", "《近人可读》《我也曾像你一样》", "腰乐队原班底蜕变后的深沉回响", "昭通,昆明"],
+        ["山人乐队", "昆明", "1999年", "民族摇滚 / 原生态", "《三十年》《山人》", "云贵高原少数民族器乐与摇滚的奇趣碰撞", "昆明,北京"],
+        ["麻园诗人", "昆明", "2008年", "苦果摇滚 / 独立", "《泸沽湖》《晚安》", "昆明麻园村走出的颗粒感嘶吼", "昆明"],
 
-    /* -------------------------------------------------------------
-       12. 流派筛选切换
-       ------------------------------------------------------------- */
-    window.setGenreFilter = function(genre) {
-      activeGenre = genre;
-      document.querySelectorAll('.genre-btn').forEach(btn => {
-        btn.classList.remove('bg-black', 'text-white');
-        btn.classList.add('bg-[#faf6eb]', 'text-black');
-      });
-      const cur = document.getElementById(`filter-${genre}`);
-      if (cur) {
-        cur.classList.add('bg-black', 'text-white');
-        cur.classList.remove('bg-[#faf6eb]', 'text-black');
-      }
+        // 中国台湾、中国香港、中国澳门矩阵
+        ["草东没有派对", "台北", "2012年", "独立摇滚 / 垃圾摇滚", "《大风吹》《山海》《缸》", "石破天惊的世代虚无与爆发，横扫金曲奖的华语摇滚新经典", "台北,北京,高雄"],
+        ["落日飞车", "台北", "2009年", "迷幻软摇滚 / Synth-Pop", "《My Jinji》《Cassa Nova》", "浪漫亚热带黄昏音色，享誉全球的台湾独立名片", "台北,东京,洛杉矶"],
+        ["伍佰 & China Blue", "台北", "1992年", "蓝调摇滚 / 台客摇滚", "《浪人情歌》《树枝孤鸟》《被动》", "King of Live，华语现场摇滚无可争议的传奇大帝", "台北,高雄"],
+        ["甜梅号", "台北", "1998年", "后摇滚 / 器乐", "《新日本》《是不是少了什么》", "台湾后摇滚开山鼻祖，昆蟲白主创", "台北"],
+        ["声子虫", "台南", "2008年", "后摇滚", "《模津》《遗心病》", "南台湾厚重悲壮的史诗级器乐音墙", "台南,台北"],
+        ["阿飞西雅", "台北", "2007年", "后摇滚 / 噪音", "《失语的鳄鱼社会》", "狂暴失真与静谧交织的台湾器乐后摇代表", "台北"],
+        ["晨曦光廊", "台南", "2009年", "温暖后摇", "《60km/h》", "南台湾温暖治愈的器乐后摇滚", "台南"],
+        ["伤心欲绝", "台北", "2008年", "民谣朋克 / 车库", "《我爱您》《逊到简直是个艺术品》", "台北街头最诚实绝望的宿醉朋克合唱", "台北"],
+        ["无妄合作社", "台北", "2016年", "迷幻蓝调 / 独立摇滚", "《山头》《二十一世纪的破青年》", "冷冽复古的吉他声线与社会洞察", "台北"],
+        ["康士坦的变化球", "台北", "2013年", "后摇滚 / 情绪硬核", "《美好的事可不可以发生在我身上》", "全员嘶吼与炸裂器乐交织的现代都市焦虑宣泄", "台北,高雄"],
+        ["灭火器", "高雄", "2000年", "流行朋克", "《晚安台湾》《海上的人》", "南台湾高雄走出的热血庞克代表", "高雄,台北"],
+        ["闪灵", "台北", "1995年", "交响黑金属", "《高砂军》《十殿》", "将二胡与极端交响黑金属结合的国际级重型乐团", "台北"],
+        ["刺客乐团", "台北", "1985年", "重金属鼻祖", "《无敌铁金刚》", "台湾重金属摇滚开山鼻祖", "台北"],
+        ["董事长乐团", "台北", "1997年", "台客摇滚 / 民俗摇滚", "《众神护台湾》", "将传统北管戏曲融入硬摇滚的资深老炮", "台北"],
+        ["八十八颗芭乐籽", "台北", "1996年", "车库蓝调朋克", "《比兽还帅》", "阿强领衔，台湾地下最野生泥泞的酒精摇滚机器", "台北"],
+        ["林生祥&交工乐队", "高雄", "1999年", "新民谣 / 土地摇滚", "《菊花夜行军》《我等就来唱山歌》", "美浓客家土地长出的唢呐、月琴与社会关怀史诗", "高雄,台北"],
+        ["胡德夫", "台北", "1970年代", "民歌之父 / 蓝调", "《匆匆》《太平洋的风》", "台湾民歌运动与原住民吟唱传奇", "台北"],
+        ["张震岳", "台北", "1993年", "流行朋克 / 阿美族摇滚", "《爱之初体验》《海雅谷慕》", "Free Night乐团，从叛逆滑板朋克到东海岸根源回归", "台北"],
+        ["Beyond", "香港", "1983年", "硬摇滚 / 流行摇滚", "《海阔天空》《光辉岁月》《长城》《金属狂人》", "黄家驹领衔，二楼后座走出的华语摇滚不朽精神丰碑", "香港,台北,北京"],
+        ["黑鸟Blackbird", "香港", "1984年", "无政府朋克 / 前卫摇滚", "《连众颠》《宣言》", "郭达年创立，香港80年代最纯粹激进的地下独立摇滚先驱", "香港"],
+        ["荔枝王King Lychee", "香港", "1999年", "硬核朋克", "《Stand Strong》《Unite Asia》", "香港硬核朋克教父，推动全亚洲地下硬核场景联结", "香港"],
+        ["LMF大懒堂", "香港", "1999年", "硬核说唱 / 新金属", "《大懒堂》《WTF》", "香港地下音乐与街头文化的愤怒强音", "香港"],
+        ["太极", "香港", "1985年", "艺术摇滚 / 硬摇滚", "《红色跑车》《迷途》", "香港80年代Band Sound黄金期代表乐队", "香港"],
+        ["话梅鹿", "香港", "2013年", "数学摇滚", "《化学》《初》", "香港新生代器乐数学摇滚代表", "香港"],
+        ["触执毛Chochukmo", "香港", "2005年", "实验独立摇滚", "《Good Night》", "极具神经质与剧场张力的香港英文独立乐队", "香港"],
+        ["铁树兰", "香港", "2005年", "新金属 / 金属核", "《自白》", "香港重型音乐现场劲旅", "香港"],
 
-      updateMapSeries();
-      if (currentCityKey) {
-        openDrawer(currentCityKey);
-      }
-    };
-
-    /* -------------------------------------------------------------
-       13. 登记新乐队模态框 (云端实时广播)
-       ------------------------------------------------------------- */
-    window.openSubmitModal = function() {
-      document.getElementById('input-city-name').value = '';
-      document.getElementById('submit-modal').classList.remove('hidden');
-      document.getElementById('submit-modal').classList.add('flex');
-    };
-
-    window.openSubmitModalForCurrentCity = function() {
-      window.openSubmitModal();
-      if (currentCityKey && RockDB[currentCityKey]) {
-        document.getElementById('input-city-name').value = RockDB[currentCityKey].name;
-      }
-    };
-
-    window.closeSubmitModal = function() {
-      document.getElementById('submit-modal').classList.add('hidden');
-      document.getElementById('submit-modal').classList.remove('flex');
-    };
-
-    window.submitNewBand = async function(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('input-band-name').value.trim();
-      const cityName = document.getElementById('input-city-name').value.trim();
-      const year = parseInt(document.getElementById('input-year').value);
-      const genreType = document.querySelector('input[name="input-genre-type"]:checked').value;
-      const genreTag = document.getElementById('input-genre-tag').value.trim();
-      const hit = document.getElementById('input-hit').value.trim();
-      const desc = document.getElementById('input-desc').value.trim() || "在地下土壤里继续咆哮。";
-
-      if (!name || !cityName) return;
-
-      const submitBtn = document.getElementById('btn-submit-band');
-      submitBtn.disabled = true;
-      submitBtn.innerText = "正在广播盖印...";
-
-      const newBand = {
-        num: RAW_500_BANDS_MANIFEST.length + 1,
-        name,
-        city: cityName,
-        province: "乐迷共建",
-        year,
-        type: genreType,
-        genre: genreTag,
-        hit,
-        desc
-      };
-
-      // 1. 本地立即挂载
-      let cityKey = Object.keys(RockDB).find(k => RockDB[k].name.includes(cityName) || cityName.includes(RockDB[k].name));
-
-      if (cityKey) {
-        RockDB[cityKey].bands.unshift(newBand);
-      } else {
-        cityKey = cityName;
-        RockDB[cityKey] = {
-          id: cityKey,
-          name: cityName,
-          province: "乐迷共建",
-          alias: "COMMUNITY BASTION",
-          coords: [108.0 + (Math.random() - 0.5) * 6, 32.0 + (Math.random() - 0.5) * 6],
-          vibe: `${cityName} 地下摇滚声音阵地，由乐迷录入共建。`,
-          bands: [newBand]
-        };
-      }
-
-      // 2. 云端广播持久化 (Rule 1 & Rule 3)
-      if (isCloudOnline && db && auth.currentUser) {
-        try {
-          const appId = typeof __app_id !== 'undefined' ? __app_id : 'china-rock-zine-map';
-          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bands'), newBand);
-        } catch (err) {
-          console.warn("云端广播乐队失败:", err);
-        }
-      }
-
-      window.closeSubmitModal();
-      document.getElementById('add-band-form').reset();
-      submitBtn.disabled = false;
-      submitBtn.innerText = "盖印收录";
-
-      updateMapSeries();
-      updateStatistics();
-      openDrawer(cityKey, name);
-      showToast(`新乐队【${name}】已成功在【${cityName}】盖印并全网同步！`);
-    };
-
-    window.openCalendarModal = function() {
-      window.closeSearchResults();
-      document.getElementById('calendar-recommend-modal').classList.remove('hidden');
-      document.getElementById('calendar-recommend-modal').classList.add('flex');
-    };
-
-    window.closeCalendarModal = function() {
-      document.getElementById('calendar-recommend-modal').classList.add('hidden');
-      document.getElementById('calendar-recommend-modal').classList.remove('flex');
-    };
-
-    /* -------------------------------------------------------------
-       14. 页面初始化
-       ------------------------------------------------------------- */
-    window.addEventListener('load', () => {
-      buildMasterDatabase();
-      initChinaMap();
-      evaluateDailySonicRecommendation();
-      initFirebaseSync();
-    });
-  </script>
-</body>
-</html>
-```
+        // 江浙沪、华东与南方矩阵
+        ["顶楼的马戏团", "上海", "2001年", "实验朋克 / 沪语恶搞", "《最低级的小市民》《上海童年》", "陆晨领衔，上海地下摇滚史上最荒诞不羁的传奇", "上海"],
+        ["冷酷仙境", "上海", "2001年", "暗潮 / 新古典民谣", "《在城市上空飞》", "林笛创立，融合大提琴、琵琶与暗潮仙音", "上海"],
+        ["鸭打鹅", "上海", "2009年", "前卫电子摇滚 / 俱乐部", "《Sports》《未来俱乐部》", "韩涵主创，上海先锋电子与实验器乐标杆", "上海"],
+        ["脏手指", "上海", "2013年", "朋克 / 桑巴摇滚", "《多米诺》《我还年轻》", "管啸天领衔，上海地下最野生滚烫的朋克诗人", "上海,圣保罗"],
+        ["绝对纯洁", "上海", "2016年", "后朋克 / 酸爵士噪音", "《We Fought Over the Moon》", "温蒂主唱，冷冽尖锐的当代海派实验后朋克", "上海"],
+        ["PK14", "南京", "1997年", "后朋克教父", "《谁谁谁和谁谁谁》《城市天气的航行》", "杨海崧领衔，中国后朋克与独立音乐不可逾越的灵魂灯塔", "南京,北京"],
+        ["盘古", "南昌", "1995年", "地下朋克", "《欲火中烧》", "90年代中期江西地下最粗粝生猛的街头之声", "南昌"],
+        ["板砖", "杭州", "2002年", "方言スカ朋克", "《杭州》《流氓》", "用杭州方言嬉笑怒骂的传奇地下朋克", "杭州"],
+        ["草台回声/出荷部", "杭州", "2015年", "独立自赏", "《出荷》", "西湖边的迷幻音墙", "杭州"],
+        ["惘闻", "大连", "1999年", "后摇滚巨匠", "《二十八克》《八匹马》《十万个为什么》", "谢玉岗领衔，北方海港吹出的中国器乐后摇最高峰", "大连"],
